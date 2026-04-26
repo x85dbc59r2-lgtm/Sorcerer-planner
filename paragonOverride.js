@@ -138,6 +138,39 @@ window.rotateBoard = rotateBoard = function(i){ paragon.boards[i].rotation=(para
 window.togglePNode = togglePNode = function(nodeId){ const b=rActive(); const def=rPDef(b.boardId); const n=def.nodes.find(x=>x.id===nodeId); if(!n) return; const idx=b.nodes.indexOf(nodeId); if(idx>=0){ if(n.type==='start') return; b.nodes.splice(idx,1); } else { if(!rAvailable(b,n,paragon.active)) return; b.nodes.push(nodeId); } save(); renderParagon(); };
 window.resetParagon = resetParagon = function(){ if(confirm('Reset all paragon boards?')){ paragon={active:0,boards:[{boardId:'start',rotation:0,glyph:'',glyphLevel:1,entryGate:'south',exitGate:'north',nodes:['start']}]}; save(); renderParagon(); } };
 window.renderHeaderParagon = renderHeaderParagon = function(){ const el=document.querySelector('#paragonCount'); if(el) el.textContent=rSelectedCount(); };
+
+function rGlyphShort(name){
+  if(!name) return '◆';
+  return name.split(/\s+/).map(w=>w[0]).join('').slice(0,3).toUpperCase() || name.slice(0,3).toUpperCase();
+}
+window.openGlyphPicker = function(i){
+  rNormalize();
+  paragon.active=i;
+  const b=paragon.boards[i];
+  const options=roughGlyphs.map(g=>`<option value="${g}" ${g===b.glyph?'selected':''}>${g}</option>`).join('');
+  const existing=document.querySelector('#glyphPickerModal'); if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='glyphPickerModal';
+  modal.className='modalOverlay';
+  modal.innerHTML=`<div class="glyphModal">
+    <button class="modalClose" onclick="closeGlyphPicker()">×</button>
+    <h3>Choose Glyph</h3>
+    <p class="muted">Slot a glyph into this board's glyph socket.</p>
+    <label>Search glyphs<input id="glyphSearch" placeholder="Type e.g. control, fire, frost..." oninput="filterGlyphButtons(this.value)"></label>
+    <label>Glyph dropdown<select id="glyphSelect" onchange="previewGlyphChoice(this.value)"><option value="">No glyph</option>${options}</select></label>
+    <label>Glyph level<input id="glyphLevelInput" type="number" min="1" max="100" value="${b.glyphLevel||1}"></label>
+    <div id="glyphButtonList" class="glyphButtonList">${roughGlyphs.map(g=>`<button data-glyph="${g}" onclick="chooseGlyphButton('${g.replace(/'/g,"\\'")}')" class="${g===b.glyph?'active':''}">${g}</button>`).join('')}</div>
+    <div class="modalActions"><button onclick="saveGlyphPicker(${i})">Save Glyph</button><button class="secondary" onclick="clearGlyphPicker(${i})">Clear</button></div>
+  </div>`;
+  document.body.appendChild(modal);
+};
+window.closeGlyphPicker = function(){ const m=document.querySelector('#glyphPickerModal'); if(m) m.remove(); };
+window.previewGlyphChoice = function(v){ document.querySelectorAll('#glyphButtonList button').forEach(btn=>btn.classList.toggle('active', btn.dataset.glyph===v)); };
+window.chooseGlyphButton = function(v){ const sel=document.querySelector('#glyphSelect'); if(sel){ sel.value=v; previewGlyphChoice(v); } };
+window.filterGlyphButtons = function(q){ q=(q||'').toLowerCase(); document.querySelectorAll('#glyphButtonList button').forEach(btn=>{ btn.style.display=btn.dataset.glyph.toLowerCase().includes(q)?'':'none'; }); };
+window.saveGlyphPicker = function(i){ const sel=document.querySelector('#glyphSelect'); const lvl=document.querySelector('#glyphLevelInput'); paragon.boards[i].glyph=sel?sel.value:''; paragon.boards[i].glyphLevel=Math.max(1,Math.min(100,parseInt((lvl&&lvl.value)||1))); save(); closeGlyphPicker(); renderParagon(); };
+window.clearGlyphPicker = function(i){ paragon.boards[i].glyph=''; paragon.boards[i].glyphLevel=1; save(); closeGlyphPicker(); renderParagon(); };
+
 window.renderParagon = renderParagon = function(){
   rNormalize();
   const root=document.querySelector('#paragonApp'); if(!root) return; renderHeaderParagon();
@@ -153,7 +186,7 @@ window.renderParagon = renderParagon = function(){
       <label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(${paragon.active},this.value)"></label>
       <div class="paragonControls"><button onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button onclick="addParagonBoard()">Attach New Board</button><button onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div>
       <div class="legend"><span>Normal</span><span>Magic</span><span>Rare</span><span>Legendary</span><span>Glyph</span><span>Gate</span></div>
-      <div class="nodeInfo"><b>${def.name}</b><br>${def.legendary?('Legendary: '+def.legendary):'Starter board'}<br>Selected nodes: ${b.nodes.length}<br><b>Rough board mode:</b> fuller layout, gates, rotation and chaining. Exact individual node names/positions can be refined later.</div>
+      <div class="nodeInfo"><b>${def.name}</b><br>${def.legendary?('Legendary: '+def.legendary):'Starter board'}<br>Selected nodes: ${b.nodes.length}<br><b>Glyph:</b> ${b.glyph ? b.glyph+' (level '+(b.glyphLevel||1)+')' : 'Tap glyph socket to choose'}<br><b>Rough board mode:</b> fuller layout, gates, rotation and chaining. Exact individual node names/positions can be refined later.</div>
     </div><div class="paragonBoard"><div class="paragonGrid large" id="pGrid"></div></div></div></div>`;
   const grid=document.querySelector('#pGrid'); const byPos={};
   def.nodes.forEach(n=>{ const r=rRotateCoord(n.x,n.y,b.rotation); byPos[r.x+','+r.y]=n; });
@@ -164,8 +197,16 @@ window.renderParagon = renderParagon = function(){
       const sel=b.nodes.includes(n.id); const avail=rAvailable(b,n,paragon.active);
       cell.className=`pNode ${n.type} ${sel?'selected':''} ${avail?'available':'locked'}`;
       cell.title=`${n.name}: ${n.bonus}`;
-      cell.textContent=n.type==='glyph'?'◆':n.type==='legendary'?'★':n.type==='rare'?'R':n.type==='magic'?'M':n.type==='gate'?'⇄':n.type==='start'?'S':'·';
-      cell.onclick=()=>togglePNode(n.id); grid.appendChild(cell);
+      if(n.type==='glyph'){
+        cell.innerHTML=`<span class="glyphMark">${rGlyphShort(b.glyph)}</span>`;
+        if(b.glyph) cell.classList.add('slotted');
+        cell.title=b.glyph ? `Glyph Socket: ${b.glyph} level ${b.glyphLevel||1}` : 'Glyph Socket: tap to choose a glyph';
+        cell.onclick=()=>{ if(!b.nodes.includes(n.id) && rAvailable(b,n,paragon.active)) b.nodes.push(n.id); save(); openGlyphPicker(paragon.active); };
+      } else {
+        cell.textContent=n.type==='legendary'?'★':n.type==='rare'?'R':n.type==='magic'?'M':n.type==='gate'?'⇄':n.type==='start'?'S':'·';
+        cell.onclick=()=>togglePNode(n.id);
+      }
+      grid.appendChild(cell);
     }
   }
 };
