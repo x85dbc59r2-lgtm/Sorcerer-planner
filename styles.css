@@ -90,3 +90,14 @@
 .glyphHotspot:not(:empty){background:rgba(86,72,160,.68);}
 .exactImageMode .legend{display:flex; flex-wrap:wrap; gap:8px; font-size:.9rem; opacity:.85;}
 .exactImageMode .nodeInfo{line-height:1.45;}
+
+
+/* Pinch/pan zoom for image-backed Paragon boards */
+.zoomControls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 12px;color:#cfd7ff;font-size:14px}
+.zoomControls button{min-width:42px;border-radius:12px;border:1px solid rgba(121,139,255,.35);background:#121832;color:#e8edff;padding:8px 10px;font-weight:800}
+.zoomControls #zoomLabel{min-width:52px;text-align:center;font-weight:900;color:#fff}
+.zoomHint{opacity:.72;margin-left:4px}
+.exactImageMode .imageBoard{overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain;max-height:72vh;background:#050711;border:1px solid rgba(120,135,255,.18)}
+.exactImageMode .imageStage{width:100%;max-width:none;margin:0 auto;transform-origin:top left;touch-action:auto}
+.exactImageMode .imageStage img{width:100%;height:auto;display:block}
+@media(max-width:700px){.zoomHint{width:100%;font-size:12px}.exactImageMode .imageBoard{max-height:68vh}.nodeHotspot{width:4.6%}.glyphHotspot{width:5.8%}}
