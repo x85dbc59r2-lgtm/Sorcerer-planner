@@ -413,6 +413,7 @@ let paragon = state.paragon || defaultParagon();
 if(!paragon.boards || !paragon.boards.length) paragon = defaultParagon();
 function pDef(id){ return paragonBoardDefs.find(b=>b.id===id) || paragonBoardDefs[0]; }
 function activeP(){ return paragon.boards[paragon.active] || paragon.boards[0]; }
+function setActiveParagonBoard(i){ paragon.active=i; save(); renderParagon(); }
 function nodeKey(boardIndex,nodeId){ return boardIndex+':'+nodeId; }
 function pSelectedCount(){ return paragon.boards.reduce((a,b)=>a+(b.nodes?b.nodes.length:0),0); }
 function rotateCoord(x,y,r){ if(r===90) return {x:12-y,y:x}; if(r===180) return {x:12-x,y:12-y}; if(r===270) return {x:y,y:12-x}; return {x,y}; }
@@ -434,7 +435,7 @@ function renderHeaderParagon(){ const el=document.querySelector('#paragonCount')
 function renderParagon(){
   const root=document.querySelector('#paragonApp'); if(!root) return; renderHeaderParagon();
   const b=activeP(), def=pDef(b.boardId);
-  root.innerHTML=`<div class="paragonWrap"><div class="boardTabs">${paragon.boards.map((x,i)=>`<button class="${i===paragon.active?'active':''}" onclick="paragon.active=${i};renderParagon()">${i+1}. ${pDef(x.boardId).name}</button>`).join('')}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${paragonBoardDefs.map(d=>`<option value="${d.id}" ${d.id===b.boardId?'selected':''}>${d.name}</option>`).join('')}</select></label><label>Glyph<select onchange="setGlyph(${paragon.active},this.value)"><option value="">No glyph</option>${paragonGlyphs.map(g=>`<option ${g===b.glyph?'selected':''}>${g}</option>`).join('')}</select></label><label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(${paragon.active},this.value)"></label><div class="paragonControls"><button onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Normal</span><span>Magic</span><span>Rare</span><span>Legendary</span><span>Glyph</span><span>Gate</span></div><div class="nodeInfo"><b>${def.name}</b><br>${def.legendary?('Legendary: '+def.legendary):'Starter board'}<br>Selected nodes: ${b.nodes.length}</div></div><div class="paragonBoard"><div class="paragonGrid" id="pGrid"></div></div></div></div>`;
+  root.innerHTML=`<div class="paragonWrap"><div class="boardTabs">${paragon.boards.map((x,i)=>`<button class="${i===paragon.active?'active':''}" onclick="setActiveParagonBoard(${i})">${i+1}. ${pDef(x.boardId).name}</button>`).join('')}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${paragonBoardDefs.map(d=>`<option value="${d.id}" ${d.id===b.boardId?'selected':''}>${d.name}</option>`).join('')}</select></label><label>Glyph<select onchange="setGlyph(${paragon.active},this.value)"><option value="">No glyph</option>${paragonGlyphs.map(g=>`<option ${g===b.glyph?'selected':''}>${g}</option>`).join('')}</select></label><label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(${paragon.active},this.value)"></label><div class="paragonControls"><button onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Normal</span><span>Magic</span><span>Rare</span><span>Legendary</span><span>Glyph</span><span>Gate</span></div><div class="nodeInfo"><b>${def.name}</b><br>${def.legendary?('Legendary: '+def.legendary):'Starter board'}<br>Selected nodes: ${b.nodes.length}</div></div><div class="paragonBoard"><div class="paragonGrid" id="pGrid"></div></div></div></div>`;
   const grid=document.querySelector('#pGrid'); const byPos={};
   def.nodes.forEach(n=>{ const r=rotateCoord(n.x,n.y,b.rotation); byPos[r.x+','+r.y]=n; });
   for(let y=0;y<13;y++){ for(let x=0;x<13;x++){ const n=byPos[x+','+y]; const cell=document.createElement('button'); if(!n){ cell.className='pNode empty'; grid.appendChild(cell); continue; } const sel=b.nodes.includes(n.id); const avail=isAvailable(b,n); cell.className=`pNode ${n.type} ${sel?'selected':''} ${avail?'available':'locked'}`; cell.title=`${n.name}: ${n.bonus}`; cell.textContent=n.type==='glyph'?'◆':n.type==='legendary'?'★':n.type==='rare'?'R':n.type==='magic'?'M':n.type==='gate'?'⇄':n.type==='start'?'S':'·'; cell.onclick=()=>togglePNode(n.id); grid.appendChild(cell); }}
@@ -447,4 +448,25 @@ const previousRenderWithGear = render;
 render = function(){ previousRenderWithGear(); renderHeaderParagon(); };
 exportBuild = function(){ const payload={buildName,pointsSpent:spent(),selected,gear,paragon,skills:skillData.filter(s=>(selected[s.id]||0)>0).map(s=>({name:s.name,rank:selected[s.id]}))}; navigator.clipboard?.writeText(JSON.stringify(payload,null,2)); document.querySelector('#exportText').value=JSON.stringify(payload,null,2); };
 importBuild = function(){ try{ const data=JSON.parse(document.querySelector('#exportText').value); Object.keys(selected).forEach(k=>delete selected[k]); Object.assign(selected,data.selected||{}); buildName=data.buildName||buildName; gear=data.gear||emptyGear(); gearSlots.forEach(s=>{ if(!gear[s]) gear[s]=emptyGear()[s]; }); paragon=data.paragon||defaultParagon(); save(); render(); renderGear(); renderParagon(); }catch(e){ alert('Paste a valid build JSON export first.'); } };
+// Expose button handlers for mobile Safari/GitHub Pages inline events
+window.switchTab = switchTab;
+window.resetBuild = resetBuild;
+window.inc = inc;
+window.dec = dec;
+window.exportBuild = exportBuild;
+window.importBuild = importBuild;
+window.resetGear = resetGear;
+window.setGear = setGear;
+window.applyUnique = applyUnique;
+window.addParagonBoard = addParagonBoard;
+window.removeParagonBoard = removeParagonBoard;
+window.setParagonBoard = setParagonBoard;
+window.setActiveParagonBoard = setActiveParagonBoard;
+window.setGlyph = setGlyph;
+window.setGlyphLevel = setGlyphLevel;
+window.rotateBoard = rotateBoard;
+window.togglePNode = togglePNode;
+window.resetParagon = resetParagon;
+window.renderParagon = renderParagon;
+
 renderHeaderParagon();
