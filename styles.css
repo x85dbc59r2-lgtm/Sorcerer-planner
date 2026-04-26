@@ -36,3 +36,11 @@
 .pNode.available{box-shadow:0 0 0 2px rgba(255,255,255,.25) inset;cursor:pointer}.pNode.locked{opacity:.45}.pNode.empty{visibility:hidden}
 .nodeInfo{margin-top:10px;color:#cfd3ff;font-size:.95rem}.nodeInfo b{color:#fff}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.legend span{font-size:.8rem;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.08)}
 @media (min-width:900px){.paragonTop{grid-template-columns:340px 1fr}.paragonGrid{grid-template-columns:repeat(13,38px);grid-template-rows:repeat(13,38px)}.pNode{width:38px;height:38px}}
+/* Paragon rough full-board update */
+.chainView{display:flex;gap:8px;align-items:center;overflow:auto;padding:8px 2px}
+.chainCard{min-width:145px;text-align:left;display:grid;gap:2px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:14px;padding:10px;color:#fff}
+.chainCard.active{border-color:#9c86ff;background:rgba(124,92,255,.22)}
+.chainCard span{font-size:.9rem}.chainCard small{color:#aeb5dc}.chainArrow{color:#9ca3d8;font-size:1.5rem}
+.paragonGrid.large{grid-template-columns:repeat(17,30px);grid-template-rows:repeat(17,30px);gap:3px}
+.paragonGrid.large .pNode{width:30px;height:30px;font-size:12px;border-radius:8px}
+@media (min-width:900px){.paragonGrid.large{grid-template-columns:repeat(17,34px);grid-template-rows:repeat(17,34px)}.paragonGrid.large .pNode{width:34px;height:34px}}
