@@ -18,12 +18,14 @@
     <span><b id="spent">0 / 58</b><small>points</small></span>
     <span><b id="activeCount">0</b><small>active skills</small></span>
     <span><b id="gearCount">0 / 10</b><small>gear slots</small></span>
+    <span><b id="paragonCount">0</b><small>paragon nodes</small></span>
     <span><b id="keyPassive">None</b><small>key passive</small></span>
   </div>
 </header>
 <nav class="tabs" aria-label="Planner sections">
   <button class="tab on" data-tab="skills" onclick="switchTab('skills')">Skills</button>
   <button class="tab" data-tab="gear" onclick="switchTab('gear')">Gear</button>
+  <button class="tab" data-tab="paragon" onclick="switchTab('paragon')">Paragon</button>
   <button class="tab" data-tab="export" onclick="switchTab('export')">Export</button>
 </nav>
 <main>
@@ -44,10 +46,18 @@
     </section>
     <div id="gearGrid"></div>
   </section>
+  <section id="paragonTab" class="tabPage hidden">
+    <section class="panel">
+      <h1>Paragon Planner</h1>
+      <p>Select boards, rotate them, slot glyphs, and tap connected nodes to plan your path.</p>
+      <div class="actions"><button onclick="addParagonBoard()">Add Board</button><button onclick="resetParagon()">Reset Paragon</button></div>
+    </section>
+    <div id="paragonApp"></div>
+  </section>
   <section id="exportTab" class="tabPage hidden">
     <section class="panel">
       <h1>Export / Import</h1>
-      <p>Exports include skills and gear. Copy the JSON to send builds to friends.</p>
+      <p>Exports include skills, gear, and paragon. Copy the JSON to send builds to friends.</p>
       <div class="actions">
         <button onclick="exportBuild()">Export JSON</button>
         <button onclick="importBuild()">Import JSON</button>

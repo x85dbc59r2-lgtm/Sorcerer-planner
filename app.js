@@ -384,3 +384,67 @@ importBuild = function(){
 
 const oldRender = render;
 render = function(){ oldRender(); renderHeaderGear(); };
+
+// ===== Paragon planner extension =====
+const paragonGlyphs = ['Adept','Charged','Control','Destruction','Elementalist','Enchanter','Exploit','Flamefeeder','Frostbite','Reinforced','Tactician','Territorial','Unleash','Winter','Pyromaniac','Electrocute'];
+const paragonBoardDefs = [
+  {id:'start', name:'Starting Board', legendary:'', nodes:makeBoard('start','Starting Node')},
+  {id:'burning_instinct', name:'Burning Instinct', legendary:'Burning Instinct', nodes:makeBoard('legendary','Burning Instinct')},
+  {id:'frigid_fate', name:'Frigid Fate', legendary:'Frigid Fate', nodes:makeBoard('legendary','Frigid Fate')},
+  {id:'static_surge', name:'Static Surge', legendary:'Static Surge', nodes:makeBoard('legendary','Static Surge')},
+  {id:'enchantment_master', name:'Enchantment Master', legendary:'Enchantment Master', nodes:makeBoard('legendary','Enchantment Master')},
+  {id:'searing_heat', name:'Searing Heat', legendary:'Searing Heat', nodes:makeBoard('legendary','Searing Heat')},
+  {id:'elemental_summoner', name:'Elemental Summoner', legendary:'Elemental Summoner', nodes:makeBoard('legendary','Elemental Summoner')},
+  {id:'ceaseless_conduit', name:'Ceaseless Conduit', legendary:'Ceaseless Conduit', nodes:makeBoard('legendary','Ceaseless Conduit')}
+];
+function makeBoard(kind, label){
+  const ns=[]; const add=(id,x,y,type,name,bonus)=>ns.push({id,x,y,type,name,bonus});
+  for(let i=1;i<=11;i++){ add('v'+i,6,i,'normal','Stat Node','+5 Intelligence'); add('h'+i,i,6,'normal','Stat Node','+5 Willpower'); }
+  [[5,5],[7,5],[5,7],[7,7],[4,6],[8,6],[6,4],[6,8]].forEach((p,i)=>add('m'+i,p[0],p[1],'magic','Magic Node','Damage / defense bonus'));
+  [[3,6],[9,6],[6,3],[6,9]].forEach((p,i)=>add('r'+i,p[0],p[1],'rare','Rare Node','Major build bonus'));
+  add('glyph',6,6,'glyph','Glyph Socket','Slot a Paragon Glyph');
+  add('gate_n',6,0,'gate','Board Gate','Attach another board'); add('gate_s',6,12,'gate','Board Gate','Attach another board'); add('gate_w',0,6,'gate','Board Gate','Attach another board'); add('gate_e',12,6,'gate','Board Gate','Attach another board');
+  if(kind==='start') add('start',6,11,'start',label,'Starting point'); else add('legend',2,2,'legendary',label,'Legendary node');
+  [[2,6],[10,6],[6,2],[6,10],[3,3],[9,3],[3,9],[9,9]].forEach((p,i)=>add('b'+i,p[0],p[1],i%2?'magic':'normal',i%2?'Magic Node':'Stat Node',i%2?'Elemental bonus':'+5 Dexterity'));
+  return ns;
+}
+function defaultParagon(){ return {active:0, boards:[{boardId:'start',rotation:0,glyph:'',glyphLevel:1,nodes:['start']}]} }
+let paragon = state.paragon || defaultParagon();
+if(!paragon.boards || !paragon.boards.length) paragon = defaultParagon();
+function pDef(id){ return paragonBoardDefs.find(b=>b.id===id) || paragonBoardDefs[0]; }
+function activeP(){ return paragon.boards[paragon.active] || paragon.boards[0]; }
+function nodeKey(boardIndex,nodeId){ return boardIndex+':'+nodeId; }
+function pSelectedCount(){ return paragon.boards.reduce((a,b)=>a+(b.nodes?b.nodes.length:0),0); }
+function rotateCoord(x,y,r){ if(r===90) return {x:12-y,y:x}; if(r===180) return {x:12-x,y:12-y}; if(r===270) return {x:y,y:12-x}; return {x,y}; }
+function neighbours(a,b){ return Math.abs(a.x-b.x)+Math.abs(a.y-b.y)===1; }
+function isAvailable(board,node){
+  if(board.nodes.includes(node.id)) return true;
+  const def=pDef(board.boardId); const selectedNodes=def.nodes.filter(n=>board.nodes.includes(n.id));
+  return selectedNodes.some(s=>neighbours(s,node));
+}
+function addParagonBoard(){ paragon.boards.push({boardId:'burning_instinct',rotation:0,glyph:'',glyphLevel:1,nodes:[]}); paragon.active=paragon.boards.length-1; save(); renderParagon(); }
+function removeParagonBoard(i){ if(i===0) return alert('The starting board cannot be removed.'); paragon.boards.splice(i,1); paragon.active=Math.max(0,paragon.active-1); save(); renderParagon(); }
+function setParagonBoard(i,id){ paragon.boards[i]={boardId:id,rotation:0,glyph:'',glyphLevel:1,nodes: id==='start'?['start']:[]}; save(); renderParagon(); }
+function setGlyph(i,v){ paragon.boards[i].glyph=v; save(); renderParagon(); }
+function setGlyphLevel(i,v){ paragon.boards[i].glyphLevel=Math.max(1,Math.min(100,parseInt(v||1))); save(); renderHeaderParagon(); }
+function rotateBoard(i){ paragon.boards[i].rotation=(paragon.boards[i].rotation+90)%360; save(); renderParagon(); }
+function togglePNode(nodeId){ const b=activeP(); const def=pDef(b.boardId); const n=def.nodes.find(x=>x.id===nodeId); if(!n) return; const idx=b.nodes.indexOf(nodeId); if(idx>=0){ if(n.type==='start') return; b.nodes.splice(idx,1); } else { if(!isAvailable(b,n)) return; b.nodes.push(nodeId); } save(); renderParagon(); }
+function resetParagon(){ if(confirm('Reset all paragon boards?')){ paragon=defaultParagon(); save(); renderParagon(); } }
+function renderHeaderParagon(){ const el=document.querySelector('#paragonCount'); if(el) el.textContent=pSelectedCount(); }
+function renderParagon(){
+  const root=document.querySelector('#paragonApp'); if(!root) return; renderHeaderParagon();
+  const b=activeP(), def=pDef(b.boardId);
+  root.innerHTML=`<div class="paragonWrap"><div class="boardTabs">${paragon.boards.map((x,i)=>`<button class="${i===paragon.active?'active':''}" onclick="paragon.active=${i};renderParagon()">${i+1}. ${pDef(x.boardId).name}</button>`).join('')}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${paragonBoardDefs.map(d=>`<option value="${d.id}" ${d.id===b.boardId?'selected':''}>${d.name}</option>`).join('')}</select></label><label>Glyph<select onchange="setGlyph(${paragon.active},this.value)"><option value="">No glyph</option>${paragonGlyphs.map(g=>`<option ${g===b.glyph?'selected':''}>${g}</option>`).join('')}</select></label><label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(${paragon.active},this.value)"></label><div class="paragonControls"><button onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Normal</span><span>Magic</span><span>Rare</span><span>Legendary</span><span>Glyph</span><span>Gate</span></div><div class="nodeInfo"><b>${def.name}</b><br>${def.legendary?('Legendary: '+def.legendary):'Starter board'}<br>Selected nodes: ${b.nodes.length}</div></div><div class="paragonBoard"><div class="paragonGrid" id="pGrid"></div></div></div></div>`;
+  const grid=document.querySelector('#pGrid'); const byPos={};
+  def.nodes.forEach(n=>{ const r=rotateCoord(n.x,n.y,b.rotation); byPos[r.x+','+r.y]=n; });
+  for(let y=0;y<13;y++){ for(let x=0;x<13;x++){ const n=byPos[x+','+y]; const cell=document.createElement('button'); if(!n){ cell.className='pNode empty'; grid.appendChild(cell); continue; } const sel=b.nodes.includes(n.id); const avail=isAvailable(b,n); cell.className=`pNode ${n.type} ${sel?'selected':''} ${avail?'available':'locked'}`; cell.title=`${n.name}: ${n.bonus}`; cell.textContent=n.type==='glyph'?'◆':n.type==='legendary'?'★':n.type==='rare'?'R':n.type==='magic'?'M':n.type==='gate'?'⇄':n.type==='start'?'S':'·'; cell.onclick=()=>togglePNode(n.id); grid.appendChild(cell); }}
+}
+const previousSwitchTab = switchTab;
+switchTab = function(tab){ previousSwitchTab(tab); if(tab==='paragon') renderParagon(); };
+const previousSaveWithGear = save;
+save = function(){ localStorage.setItem('sorcPlannerState', JSON.stringify({selected, buildName, gear, paragon})); };
+const previousRenderWithGear = render;
+render = function(){ previousRenderWithGear(); renderHeaderParagon(); };
+exportBuild = function(){ const payload={buildName,pointsSpent:spent(),selected,gear,paragon,skills:skillData.filter(s=>(selected[s.id]||0)>0).map(s=>({name:s.name,rank:selected[s.id]}))}; navigator.clipboard?.writeText(JSON.stringify(payload,null,2)); document.querySelector('#exportText').value=JSON.stringify(payload,null,2); };
+importBuild = function(){ try{ const data=JSON.parse(document.querySelector('#exportText').value); Object.keys(selected).forEach(k=>delete selected[k]); Object.assign(selected,data.selected||{}); buildName=data.buildName||buildName; gear=data.gear||emptyGear(); gearSlots.forEach(s=>{ if(!gear[s]) gear[s]=emptyGear()[s]; }); paragon=data.paragon||defaultParagon(); save(); render(); renderGear(); renderParagon(); }catch(e){ alert('Paste a valid build JSON export first.'); } };
+renderHeaderParagon();

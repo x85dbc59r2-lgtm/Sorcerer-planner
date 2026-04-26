@@ -19,3 +19,20 @@
 .uniqueEffect{background:#0d1226;border:1px solid #313a67;border-radius:12px;padding:.75rem;color:#dce5ff;line-height:1.35}
 .muted{color:#9ca7cd;font-size:.85rem;margin:.4rem 0}
 .notes{min-height:84px;resize:vertical}
+
+/* Paragon planner */
+.paragonWrap{display:grid;gap:16px}
+.paragonTop{display:grid;grid-template-columns:1fr;gap:12px}
+.paragonControls,.boardTabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.boardTabs button.active{background:#7c5cff;color:#fff;border-color:#9c86ff}
+.paragonPanel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:14px}
+.paragonPanel label{display:grid;gap:6px;font-size:.9rem;color:#cfd3ff;margin:8px 0}
+.paragonPanel select,.paragonPanel input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#11162b;color:#fff}
+.paragonBoard{overflow:auto;padding:14px;background:radial-gradient(circle at center,rgba(124,92,255,.12),rgba(0,0,0,.12));border-radius:18px;border:1px solid rgba(255,255,255,.08)}
+.paragonGrid{display:grid;grid-template-columns:repeat(13,34px);grid-template-rows:repeat(13,34px);gap:4px;width:max-content;margin:auto}
+.pNode{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:#191e35;color:#dce0ff;font-size:14px;display:flex;align-items:center;justify-content:center;position:relative}
+.pNode.normal{background:#1b243e}.pNode.magic{background:#15324e}.pNode.rare{background:#4b3b15}.pNode.legendary{background:#5d291b}.pNode.glyph{background:#2c185d}.pNode.gate{background:#17412b}.pNode.start{background:#34522b}
+.pNode.selected{outline:3px solid #6ee7b7;box-shadow:0 0 18px rgba(110,231,183,.35)}
+.pNode.available{box-shadow:0 0 0 2px rgba(255,255,255,.25) inset;cursor:pointer}.pNode.locked{opacity:.45}.pNode.empty{visibility:hidden}
+.nodeInfo{margin-top:10px;color:#cfd3ff;font-size:.95rem}.nodeInfo b{color:#fff}.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.legend span{font-size:.8rem;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.08)}
+@media (min-width:900px){.paragonTop{grid-template-columns:340px 1fr}.paragonGrid{grid-template-columns:repeat(13,38px);grid-template-rows:repeat(13,38px)}.pNode{width:38px;height:38px}}
