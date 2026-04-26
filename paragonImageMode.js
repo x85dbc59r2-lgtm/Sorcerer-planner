@@ -62,6 +62,59 @@
       }
     }, {passive:false});
     board.addEventListener('touchend', ()=>{ panStart=null; startDist=0; }, {passive:true});
+    // Forgiving tap layer: selects the nearest real node even if the finger lands
+    // slightly beside the small visual circle. This is much better on iPhone.
+    let tapStart = null;
+    const nearestNodeFromClient = (clientX, clientY) => {
+      ensureParagon();
+      const active = paragon.active || 0;
+      const b = paragon.boards[active] || paragon.boards[0];
+      const stageRect = stage.getBoundingClientRect();
+      const nodes = nodeMap[b.boardId] || [];
+      if(!stageRect.width || !stageRect.height || !nodes.length) return null;
+      const px = ((clientX - stageRect.left) / stageRect.width) * 100;
+      const py = ((clientY - stageRect.top) / stageRect.height) * 100;
+      let best = null;
+      let bestDist = Infinity;
+      for(const n of nodes){
+        const rp = rotPoint(n.x, n.y, b.rotation);
+        const dx = (px - rp.x) * stageRect.width / 100;
+        const dy = (py - rp.y) * stageRect.height / 100;
+        const d = Math.hypot(dx, dy);
+        const tol = n.type === 'glyph' ? Math.max(58, stageRect.width * 0.06) : Math.max(46, stageRect.width * 0.048);
+        if(d < tol && d < bestDist){ best = n; bestDist = d; }
+      }
+      return best;
+    };
+    const cssEsc = (v) => (window.CSS && CSS.escape) ? CSS.escape(v) : String(v).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+    const activateNearest = (clientX, clientY) => {
+      const n = nearestNodeFromClient(clientX, clientY);
+      if(!n) return false;
+      if(n.type === 'glyph'){ openGlyphPicker(); return true; }
+      const btn = stage.querySelector(`[data-node-id="${cssEsc(n.id)}"]`);
+      toggleNode(paragon.active || 0, n.id, btn);
+      return true;
+    };
+    board.addEventListener('touchstart', (e)=>{
+      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(!e.touches || e.touches.length !== 1) return;
+      const t=e.touches[0]; tapStart={x:t.clientX,y:t.clientY,time:Date.now()};
+    }, {passive:true});
+    board.addEventListener('touchend', (e)=>{
+      if(!tapStart || !e.changedTouches || e.changedTouches.length !== 1){ tapStart=null; return; }
+      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))){ tapStart=null; return; }
+      const t=e.changedTouches[0];
+      const moved=Math.hypot(t.clientX-tapStart.x, t.clientY-tapStart.y);
+      if(moved < 20 && Date.now()-tapStart.time < 700){
+        if(activateNearest(t.clientX,t.clientY)){ e.preventDefault(); e.stopPropagation(); }
+      }
+      tapStart=null;
+    }, {passive:false});
+    board.addEventListener('click', (e)=>{
+      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(activateNearest(e.clientX,e.clientY)){ e.preventDefault(); e.stopPropagation(); }
+    });
+
     board.addEventListener('dblclick', (e)=>{ e.preventDefault(); const r=board.getBoundingClientRect(); applyZoom(zoomState.scale > 1 ? 1 : 2.2, {x:e.clientX-r.left,y:e.clientY-r.top}); });
     applyZoom(zoomState.scale);
   }
@@ -127,7 +180,7 @@
       const p=rotPoint(n.x,n.y,b.rotation); const selected=b.nodes.includes(n.id); const type=n.type==='glyph'?'glyphHotspot':'nodeHotspot';
       const action = n.type==='glyph' ? 'openGlyphPicker()' : `toggleParagonNode(${paragon.active},'${n.id}',this)`;
       const label = n.type==='glyph' && b.glyph ? b.glyph.slice(0,3) : '';
-      return `<button type="button" class="${type} ${selected?'selected':''}" style="left:${p.x}%;top:${p.y}%" onclick="event.preventDefault();event.stopPropagation();${action}" aria-label="${n.type==='glyph'?'Glyph socket':'Paragon node'}">${label}</button>`;
+      return `<button type="button" class="${type} ${selected?'selected':''}" data-node-id="${n.id}" style="left:${p.x}%;top:${p.y}%" onclick="event.preventDefault();event.stopPropagation();${action}" aria-label="${n.type==='glyph'?'Glyph socket':'Paragon node'}">${label}</button>`;
     }).join('');
     const glyphPicker = showGlyph ? `<div class="glyphModal"><div class="glyphCard"><button type="button" class="closeGlyph" onclick="closeGlyphPicker()">×</button><h3>Glyph Socket</h3><p>Choose the glyph for <b>${def.name}</b>.</p><input class="glyphSearch" placeholder="Search glyphs..." oninput="filterGlyphList(this.value)"><select id="glyphSelect" onchange="pickGlyph(this.value)"><option value="">No glyph</option>${glyphList.map(g=>`<option value="${g}" ${g===b.glyph?'selected':''}>${g}</option>`).join('')}</select><label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(this.value)"></label></div></div>` : '';
     root.innerHTML = `<div class="paragonWrap exactImageMode"><div class="boardTabs">${tabs}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${opts}</select></label><div class="paragonControls"><button type="button" onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button type="button" onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Tap real nodes to select/deselect</span><span>Tap the red glyph socket to choose glyph</span></div><div class="nodeInfo"><b>${def.name}</b><br>Glyph: ${b.glyph || 'None'} ${b.glyph ? '(level '+(b.glyphLevel||1)+')' : ''}<br><span id="paragonSelectedLine">${b.nodes.length} selected nodes on this board</span></div></div><div class="zoomControls"><button type="button" onclick="zoomOutParagon()">−</button><span class="zoomLabel">100%</span><button type="button" onclick="zoomInParagon()">+</button><button type="button" onclick="resetParagonZoom()">Reset</button><span class="zoomHint">Pinch/spread on the board to zoom. Drag while zoomed to pan.</span></div><div class="paragonBoard imageBoard"><div class="boardZoomOverlay"><button type="button" onclick="zoomOutParagon()">−</button><span class="zoomLabel">100%</span><button type="button" onclick="zoomInParagon()">+</button><button type="button" onclick="resetParagonZoom()">Reset</button></div><div class="imageStage rot${b.rotation}"><img src="${def.img}" alt="${def.name} paragon board" draggable="false">${nodeBtns}</div></div></div>${glyphPicker}</div>`;
