@@ -21,49 +21,69 @@ function rTyped(x,y,i,v){
   if((x*3+y+v)%5===0) return 'magic';
   return 'normal';
 }
+const boardMasks = {
+  start: [
+    "........G........",".......nnn.......","........n........",".......nnn.......","......nmmmn......",".....nnrgrnn.....","....nnmnnnmnn....","...nnnnnGnnnnn...","..GnnmnnLnnmnnG..","....nnnnnnnnn....",".....nmrnnrmn....","......nnnnn......",".......n.n.......","......nnnnn......",".......nSn.......","........S........","........G........"
+  ],
+  burning_instinct: [
+    "........G........",".......nnnn......",".......n..n......","......nn..nn.....",".....nnm..mnn....","....nnrn..nrn....","...nnmnn..nnmnn..","..nnnn..G..nnnn..","Gnnrn...L...nrnnG","..nnnn.....nnnn..","...mnnn...nnnm...","....nnr...rnn....",".....nn...nn.....","......nnnnn......",".......n.n.......",".......nnn.......","........G........"
+  ],
+  ceaseless_conduit: [
+    "........G........",".......nnn.......","......nmnmn......",".....nnn.nnn.....","....rnn...nnr....","...nnn.....nnn...","..mnn..G....nnm..","..nn..nnn....nn..","Gnn..nnLnn....nnG","..nn..nnn....nn..","..mnn.......nnm..","...nnn.....nnn...","....rnn...nnr....",".....nnn.nnn.....","......nmnmn......",".......nnn.......","........G........"
+  ],
+  elemental_summoner: [
+    "........G........","........n........",".......nnn.......","......nnrnn......",".....nnn.nnn.....","....nnm...mnn....","...nnn.G...nnn...","..nnnnnnnnnnnnn..","Gnnrnn..L..nnrnnG","..nnnnnnnnnnnnn..","...nnn.....nnn...","....mnn...nnm....",".....nnr.rnn.....","......nnnnn......",".......n.n.......",".......nnn.......","........G........"
+  ],
+  enchantment_master: [
+    "........G........","......nnnnn......",".....nn...nn.....","....nmn...nmn....","...nnn..G..nnn...","..rnnn.....nnnr..","..nn...nnn...nn..",".nn..nnnLnnn..nn.","Gnnnnn.....nnnnnG",".nn..nnnnnnn..nn.","..nn...nnn...nn..","..rnnn.....nnnr..","...nnn.....nnn...","....nmn...nmn....",".....nn...nn.....","......nnnnn......","........G........"
+  ],
+  frigid_fate: [
+    "........G........",".......nnn.......",".....nnn.nnn.....","....nnm...mnn....","...rnn.....nnr...","..nnn.......nnn..","..mnn..G....nnm..",".nnnnnnnnnnnnnnn.","Gnn...nnLnn...nnG",".nnnnnnnnnnnnnnn.","..mnn.......nnm..","..nnn.......nnn..","...rnn.....nnr...","....nnm...mnn....",".....nnn.nnn.....",".......nnn.......","........G........"
+  ],
+  fundamental_release: [
+    "........G........","......nnnnn......",".....nn...nn.....","....nn.....nn....","...nnn..G..nnn...","..rnnn.....nnnr..","..nnn..m.m..nnn..",".nnnnnnnLnnnnnnn.","Gnnn.........nnnG",".nnnnnnnnnnnnnnn.","..nnn.......nnn..","..mnnn.....nnnm..","...rnn.....nnr...","....nn.....nn....",".....nn...nn.....","......nnnnn......","........G........"
+  ],
+  icefall: [
+    "........G........","......nnnnn......",".....nn...nn.....","....nnm...mnn....","...nnn.....nnn...","..rnn..G....nnr..",".nnn..nnn....nnn.",".nn..nnLnn....nn.","GnnnnnnnnnnnnnnnG",".nn......nnnnnnn.",".nnn.....nnn..nn.","..rnn...nnn..nr..","...nnn.nnn...nn..","....nnnnn....n...",".....nnn....nn...","......nnnnnnn....","........G........"
+  ],
+  searing_heat: [
+    "........G........",".......nnn.......","......nmnmn......",".....nn...nn.....","....nnn.G.nnn....","...rnn.....nnr...","..nnn..nnn..nnn..",".nn..nnnLnnn..nn.","Gnnnn.......nnnnG",".nn..nnnnnnn..nn.","..nnn.......nnn..","...rnn.....nnr...","....nnn...nnn....",".....nn...nn.....","......nmnmn......",".......nnn.......","........G........"
+  ],
+  static_surge: [
+    "........G........",".......nnn.......",".......n.n.......","......nn.nn......",".....nnm.mnn.....","....rnn...nnr....","...nnn..G..nnn...","..nnn..nnn..nnn..","Gnn...nnLnn...nnG","..nnn..nnn..nnn..","...nnn.....nnn...","....rnn...nnr....",".....nnm.mnn.....","......nn.nn......",".......n.n.......",".......nnn.......","........G........"
+  ]
+};
+const maskToType = { n:'normal', m:'magic', r:'rare', L:'legendary', G:'gate', S:'start' };
 function rMakeBoard(id, name, variant, isStart){
+  const mask = boardMasks[id] || boardMasks.static_surge;
   const nodes=[]; const seen=new Set();
   const add=(nid,x,y,type='normal',n='Paragon Node',b='')=>{
-    if(x<0||x>=ROUGH_BOARD_SIZE||y<0||y>=ROUGH_BOARD_SIZE) return;
     const key=x+','+y; if(seen.has(key)) return; seen.add(key);
     nodes.push({id:nid,x,y,type,name:n,bonus:b||rNodeBonus(type,name)});
   };
-  const idAt=(x,y)=>`n_${x}_${y}`;
-  add(rGateId('north'),8,0,'gate','North Gate','Attach another board');
-  add(rGateId('south'),8,16,'gate','South Gate','Attach another board');
-  add(rGateId('west'),0,8,'gate','West Gate','Attach another board');
-  add(rGateId('east'),16,8,'gate','East Gate','Attach another board');
-  if(isStart){
-    add('start',8,15,'start','Starting Node','Start spending Paragon points here');
-    [[8,14],[7,14],[9,14],[8,13],[7,13],[9,13],[8,12],[7,12],[9,12],
-     [6,11],[7,11],[8,11],[9,11],[10,11],[6,10],[7,10],[8,10],[9,10],[10,10],
-     [5,9],[6,9],[7,9],[8,9],[9,9],[10,9],[11,9],[4,8],[5,8],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[12,8],
-     [5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[6,6],[7,6],[8,6],[9,6],[10,6],
-     [6,5],[7,5],[8,5],[9,5],[10,5],[7,4],[8,4],[9,4],[7,3],[8,3],[9,3],[8,2],[7,1],[8,1],[9,1]
-    ].forEach(([x,y],i)=>add(idAt(x,y),x,y,rTyped(x,y,i,variant),'Paragon Node'));
-    add('glyph',8,8,'glyph','Glyph Socket','Slot a Glyph here');
-    add('rare_left',5,9,'rare','Rare Node','Important rare bonus');
-    add('rare_right',11,9,'rare','Rare Node','Important rare bonus');
-    return nodes;
-  }
-  // Main lanes and diamond mass.
-  for(let x=1;x<16;x++) add(idAt(x,8),x,8,rTyped(x,8,x,variant),'Paragon Node');
-  for(let y=1;y<16;y++) add(idAt(8,y),8,y,rTyped(8,y,y,variant),'Paragon Node');
-  [2,3,4,5,6].forEach(d=>{
-    for(let dx=-d; dx<=d; dx++){
-      const dy=d-Math.abs(dx);
-      if(dy!==0){ add(idAt(8+dx,8+dy),8+dx,8+dy,rTyped(8+dx,8+dy,d,variant),'Paragon Node'); add(idAt(8+dx,8-dy),8+dx,8-dy,rTyped(8+dx,8-dy,d+1,variant),'Paragon Node'); }
-      else add(idAt(8+dx,8),8+dx,8,rTyped(8+dx,8,d,variant),'Paragon Node');
-    }
+  mask.forEach((row,y)=>{
+    [...row].forEach((ch,x)=>{
+      if(ch==='.') return;
+      let type = maskToType[ch] || 'normal';
+      let nid = `n_${x}_${y}`;
+      let nodeName = 'Paragon Node';
+      let bonus = '';
+      if(type==='gate'){
+        if(y===0) nid=rGateId('north');
+        else if(y===16) nid=rGateId('south');
+        else if(x===0) nid=rGateId('west');
+        else if(x===16) nid=rGateId('east');
+        else { type='glyph'; nid='glyph'; nodeName='Glyph Socket'; bonus='Slot a Glyph here'; }
+      }
+      if(type==='glyph'){ nid='glyph'; nodeName='Glyph Socket'; bonus='Slot a Glyph here'; }
+      if(type==='legendary'){ nid='legendary'; nodeName=name; bonus=`Legendary node: ${name}`; }
+      if(type==='start'){ nid='start'; nodeName='Starting Node'; bonus='Start spending Paragon points here'; }
+      if(type==='rare') nodeName='Rare Node';
+      if(type==='magic') nodeName='Magic Node';
+      if(type==='normal') nodeName='Normal Node';
+      add(nid,x,y,type,nodeName,bonus);
+    });
   });
-  const clusters = [[3+(variant%2),4+((variant+1)%2)],[13-(variant%2),4+(variant%3===0?1:0)],[3+(variant%3===1?1:0),13-(variant%2)],[13-(variant%3===2?1:0),13]];
-  clusters.forEach(([cx,cy],ci)=>{
-    [[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1],[2,0],[-2,0],[0,2],[0,-2],[2,1],[-2,-1]].forEach(([dx,dy],j)=>add(idAt(cx+dx,cy+dy),cx+dx,cy+dy,rTyped(cx+dx,cy+dy,j+ci,variant),'Paragon Node'));
-  });
-  add('glyph',8,8,'glyph','Glyph Socket','Slot a Glyph here');
-  const leg = [[5,5],[11,5],[5,11],[11,11],[4,8],[12,8]][variant%6];
-  add('legendary',leg[0],leg[1],'legendary',name,`Legendary node: ${name}`);
-  [[3,8],[13,8],[8,3],[8,13],[4,4],[12,4],[4,12],[12,12]].forEach(([x,y],i)=>add('rare_'+i,x,y,'rare','Rare Node','Major rare bonus'));
   return nodes;
 }
 const roughBoardDefs = [

@@ -44,3 +44,8 @@
 .paragonGrid.large{grid-template-columns:repeat(17,30px);grid-template-rows:repeat(17,30px);gap:3px}
 .paragonGrid.large .pNode{width:30px;height:30px;font-size:12px;border-radius:8px}
 @media (min-width:900px){.paragonGrid.large{grid-template-columns:repeat(17,34px);grid-template-rows:repeat(17,34px)}.paragonGrid.large .pNode{width:34px;height:34px}}
+/* Paragon masked board visual patch */
+.pNode.glyph{background:radial-gradient(circle at 50% 50%, #b794ff 0 24%, #3b2474 26% 58%, #171827 60%);border:2px solid #a78bfa;color:#fff;font-weight:800;box-shadow:0 0 14px rgba(167,139,250,.35)}
+.pNode.legendary{background:radial-gradient(circle at 50% 50%, #ffb454 0 22%, #633318 24% 58%, #18120c 60%);border:2px solid #f59e0b;color:#fff;font-weight:900;box-shadow:0 0 16px rgba(245,158,11,.42)}
+.pNode.gate{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);border-radius:0;background:#173f32;border:2px solid #86efac;color:#d1fae5;font-weight:800}
+.pNode.empty{visibility:hidden;pointer-events:none}.paragonGrid.large{background:radial-gradient(circle at center, rgba(255,255,255,.04), rgba(0,0,0,.12));padding:12px;border-radius:18px}
