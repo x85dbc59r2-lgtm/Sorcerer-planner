@@ -56,3 +56,24 @@
 .modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px}
 .glyphModal{width:min(520px,94vw);max-height:86vh;overflow:auto;background:#101523;border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.55);position:relative;color:#f8fafc}
 .glyphModal h3{margin:0 0 6px;font-size:24px}.glyphModal .muted{color:#aab3c5;margin:0 0 14px}.glyphModal label{display:block;margin:12px 0;color:#dbe4ff}.glyphModal input,.glyphModal select{width:100%;box-sizing:border-box;margin-top:6px;background:#0b1020;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px;font-size:16px}.modalClose{position:absolute;right:12px;top:10px;border:0;background:#263044;color:#fff;border-radius:50%;width:38px;height:38px;font-size:24px}.glyphButtonList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.glyphButtonList button{border:1px solid rgba(255,255,255,.14);background:#171d2e;color:#e8eeff;border-radius:12px;padding:10px;text-align:left}.glyphButtonList button.active{outline:2px solid #a78bfa;background:#2c185d}.modalActions{display:flex;gap:10px;margin-top:16px}.modalActions button{flex:1;border:0;border-radius:14px;padding:12px;background:#7c3aed;color:#fff;font-weight:800}.modalActions button.secondary{background:#2b3446}
+
+/* Image-backed paragon mode */
+.imageMode .paragonTop{align-items:flex-start}
+.imageBoard{overflow:auto; -webkit-overflow-scrolling:touch; max-height:76vh; padding:0; background:#060812; border-radius:22px;}
+.imageStage{position:relative; width:min(980px, 145vw); margin:0 auto; touch-action:manipulation; transform-origin:center center;}
+.imageStage img{display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; opacity:.94; border-radius:18px;}
+.imageStage.rot90 img{transform:rotate(90deg);}
+.imageStage.rot180 img{transform:rotate(180deg);}
+.imageStage.rot270 img{transform:rotate(270deg);}
+.imgSpecial,.routeMark{position:absolute; transform:translate(-50%,-50%); z-index:3; border:2px solid rgba(255,255,255,.35); box-shadow:0 0 14px rgba(0,0,0,.65);}
+.imgSpecial{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:rgba(12,16,34,.86);}
+.imgSpecial.glyph{border-color:#8d6cff;background:rgba(62,42,120,.85);font-size:12px;min-width:42px;color:#eee;}
+.imgSpecial.legendary{border-color:#d4a343;background:rgba(85,55,18,.86);}
+.imgSpecial.gate{border-color:#7ee7c0;background:rgba(20,85,68,.76);}
+.imgSpecial.start{border-color:#7ee7c0;background:rgba(38,120,72,.85);}
+.routeMark{width:22px;height:22px;border-radius:999px;background:#6b7cff;border-color:#c4caff;opacity:.88;}
+.routeMark:after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff;}
+.glyphModal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:18px;}
+.glyphCard{position:relative;width:min(420px,95vw);background:#11162d;border:1px solid #313b70;border-radius:20px;padding:20px;color:#fff;box-shadow:0 20px 80px rgba(0,0,0,.7);}
+.glyphCard h3{margin:0 0 8px;font-size:24px}.glyphCard p{color:#b8c0e8}.glyphCard input,.glyphCard select{width:100%;margin:8px 0 12px;padding:12px;border-radius:12px;border:1px solid #33406e;background:#070a18;color:#fff}.closeGlyph{position:absolute;right:12px;top:12px;border-radius:999px;width:34px;height:34px;background:#252b45;color:#fff;border:0;font-size:22px}
+@media(max-width:700px){.imageStage{width:170vw}.imgSpecial{width:32px;height:32px;border-radius:10px;font-size:12px}.routeMark{width:20px;height:20px}.imageBoard{max-height:72vh}}
