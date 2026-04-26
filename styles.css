@@ -77,3 +77,16 @@
 .glyphCard{position:relative;width:min(420px,95vw);background:#11162d;border:1px solid #313b70;border-radius:20px;padding:20px;color:#fff;box-shadow:0 20px 80px rgba(0,0,0,.7);}
 .glyphCard h3{margin:0 0 8px;font-size:24px}.glyphCard p{color:#b8c0e8}.glyphCard input,.glyphCard select{width:100%;margin:8px 0 12px;padding:12px;border-radius:12px;border:1px solid #33406e;background:#070a18;color:#fff}.closeGlyph{position:absolute;right:12px;top:12px;border-radius:999px;width:34px;height:34px;background:#252b45;color:#fff;border:0;font-size:22px}
 @media(max-width:700px){.imageStage{width:170vw}.imgSpecial{width:32px;height:32px;border-radius:10px;font-size:12px}.routeMark{width:20px;height:20px}.imageBoard{max-height:72vh}}
+
+
+/* Exact image-backed clickable paragon boards */
+.exactImageMode .imageStage{position:relative; max-width:100%; overflow:auto; touch-action:pan-x pan-y;}
+.exactImageMode .imageStage img{display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; border-radius:18px;}
+.nodeHotspot,.glyphHotspot{position:absolute; transform:translate(-50%,-50%); border:0; margin:0; padding:0; background:transparent; color:white; z-index:5; touch-action:manipulation;}
+.nodeHotspot{width:3.9%; aspect-ratio:1/1; border-radius:50%;}
+.nodeHotspot.selected{background:rgba(106,137,255,.20); outline:3px solid rgba(111,134,255,.92); box-shadow:0 0 0 5px rgba(111,134,255,.24),0 0 18px rgba(111,134,255,.65);}
+.glyphHotspot{width:4.9%; aspect-ratio:1/1; border-radius:12px; font-weight:900; font-size:clamp(10px,2.1vw,18px); display:flex; align-items:center; justify-content:center; color:#fff; text-shadow:0 1px 4px #000;}
+.glyphHotspot::after{content:""; position:absolute; inset:-6px; border-radius:15px; border:2px solid rgba(150,112,255,.62); box-shadow:0 0 14px rgba(150,112,255,.5); opacity:.75;}
+.glyphHotspot:not(:empty){background:rgba(86,72,160,.68);}
+.exactImageMode .legend{display:flex; flex-wrap:wrap; gap:8px; font-size:.9rem; opacity:.85;}
+.exactImageMode .nodeInfo{line-height:1.45;}
