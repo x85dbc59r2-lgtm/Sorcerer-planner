@@ -101,3 +101,11 @@
 .exactImageMode .imageStage{width:100%;max-width:none;margin:0 auto;transform-origin:top left;touch-action:auto}
 .exactImageMode .imageStage img{width:100%;height:auto;display:block}
 @media(max-width:700px){.zoomHint{width:100%;font-size:12px}.exactImageMode .imageBoard{max-height:68vh}.nodeHotspot{width:4.6%}.glyphHotspot{width:5.8%}}
+
+/* Zoom overlay for image-backed paragon boards */
+.exactImageMode .imageBoard{position:relative; overflow:auto; -webkit-overflow-scrolling:touch; touch-action:none; user-select:none;}
+.boardZoomOverlay{position:sticky; top:10px; left:10px; z-index:40; display:inline-flex; align-items:center; gap:6px; padding:6px; margin:8px; border-radius:16px; background:rgba(5,8,22,.78); border:1px solid rgba(132,146,255,.35); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.boardZoomOverlay button{min-width:38px; min-height:34px; border-radius:12px; border:1px solid rgba(132,146,255,.4); background:#172044; color:#fff; font-weight:900; font-size:16px}
+.boardZoomOverlay .zoomLabel{min-width:48px; text-align:center; color:#fff; font-size:13px; font-weight:900}
+.exactImageMode .imageStage{transition:width .12s ease; transform-origin:top left;}
+@media(max-width:700px){.boardZoomOverlay{position:sticky; top:6px; left:6px; margin:6px}.boardZoomOverlay button{min-width:42px; min-height:38px}.zoomControls{font-size:12px}.zoomControls button{min-height:36px}}

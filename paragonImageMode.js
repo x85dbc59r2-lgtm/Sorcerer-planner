@@ -7,33 +7,62 @@
   const glyphList = (typeof paragonGlyphs !== 'undefined' ? paragonGlyphs : ['Adept','Charged','Control','Destruction','Elementalist','Enchanter','Exploit','Flamefeeder','Frostbite','Reinforced','Tactician','Territorial','Unleash','Winter']);
 
   const zoomState = {scale: 1};
-  function clampZoom(v){ return Math.max(1, Math.min(4, Number(v)||1)); }
-  function applyZoom(scale){
-    zoomState.scale = clampZoom(scale);
+  function clampZoom(v){ return Math.max(1, Math.min(5, Number(v)||1)); }
+  function applyZoom(scale, anchor){
+    const board = document.querySelector('.imageBoard');
     const stage = document.querySelector('.imageStage');
-    const label = document.querySelector('#zoomLabel');
-    if(stage){ stage.style.width = (zoomState.scale * 100) + '%'; stage.style.maxWidth = 'none'; }
-    if(label) label.textContent = Math.round(zoomState.scale * 100) + '%';
+    if(!board || !stage) return;
+    const oldScale = zoomState.scale || 1;
+    const newScale = clampZoom(scale);
+    const beforeW = stage.offsetWidth || board.clientWidth;
+    const beforeH = stage.offsetHeight || board.clientHeight;
+    const rx = anchor ? ((anchor.x + board.scrollLeft) / Math.max(1,beforeW)) : 0.5;
+    const ry = anchor ? ((anchor.y + board.scrollTop) / Math.max(1,beforeH)) : 0.5;
+    zoomState.scale = newScale;
+    stage.style.width = (newScale * 100) + '%';
+    stage.style.maxWidth = 'none';
+    document.querySelectorAll('.zoomLabel').forEach(el => el.textContent = Math.round(newScale * 100) + '%');
+    requestAnimationFrame(()=>{
+      const afterW = stage.offsetWidth || beforeW * (newScale/oldScale);
+      const afterH = stage.offsetHeight || beforeH * (newScale/oldScale);
+      if(anchor){
+        board.scrollLeft = Math.max(0, rx * afterW - anchor.x);
+        board.scrollTop = Math.max(0, ry * afterH - anchor.y);
+      }
+    });
   }
-  function zoomIn(){ applyZoom(zoomState.scale + 0.25); }
-  function zoomOut(){ applyZoom(zoomState.scale - 0.25); }
+  function zoomIn(){ const b=document.querySelector('.imageBoard'); applyZoom(zoomState.scale + 0.3, b ? {x:b.clientWidth/2,y:b.clientHeight/2} : null); }
+  function zoomOut(){ const b=document.querySelector('.imageBoard'); applyZoom(zoomState.scale - 0.3, b ? {x:b.clientWidth/2,y:b.clientHeight/2} : null); }
   function resetZoom(){ applyZoom(1); const board=document.querySelector('.imageBoard'); if(board){ board.scrollLeft=0; board.scrollTop=0; } }
   function attachZoomHandlers(){
-    const board = document.querySelector('.imageBoard');
-    if(!board || board.dataset.zoomReady === '1') return;
+    const board=document.querySelector('.imageBoard'); const stage=document.querySelector('.imageStage');
+    if(!board || !stage || board.dataset.zoomReady === '1') return;
     board.dataset.zoomReady = '1';
     let startDist = 0, startScale = zoomState.scale;
-    const distance = (a,b)=>Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+    let panStart = null;
+    const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+    const localPoint=(touch)=>{ const r=board.getBoundingClientRect(); return {x: touch.clientX-r.left, y: touch.clientY-r.top}; };
     board.addEventListener('touchstart', (e)=>{
-      if(e.touches && e.touches.length === 2){ startDist = distance(e.touches[0], e.touches[1]); startScale = zoomState.scale; }
+      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(e.touches && e.touches.length === 2){
+        startDist = distance(e.touches[0], e.touches[1]); startScale = zoomState.scale;
+      } else if(e.touches && e.touches.length === 1 && zoomState.scale > 1){
+        panStart = {x:e.touches[0].clientX, y:e.touches[0].clientY, left:board.scrollLeft, top:board.scrollTop};
+      }
     }, {passive:true});
     board.addEventListener('touchmove', (e)=>{
       if(e.touches && e.touches.length === 2){
         e.preventDefault();
-        applyZoom(startScale * (distance(e.touches[0], e.touches[1]) / Math.max(1,startDist)));
+        const mid={clientX:(e.touches[0].clientX+e.touches[1].clientX)/2, clientY:(e.touches[0].clientY+e.touches[1].clientY)/2};
+        applyZoom(startScale * (distance(e.touches[0], e.touches[1]) / Math.max(1,startDist)), localPoint(mid));
+      } else if(e.touches && e.touches.length === 1 && panStart && zoomState.scale > 1){
+        e.preventDefault();
+        board.scrollLeft = panStart.left - (e.touches[0].clientX - panStart.x);
+        board.scrollTop = panStart.top - (e.touches[0].clientY - panStart.y);
       }
     }, {passive:false});
-    board.addEventListener('dblclick', (e)=>{ e.preventDefault(); applyZoom(zoomState.scale > 1 ? 1 : 2); });
+    board.addEventListener('touchend', ()=>{ panStart=null; startDist=0; }, {passive:true});
+    board.addEventListener('dblclick', (e)=>{ e.preventDefault(); const r=board.getBoundingClientRect(); applyZoom(zoomState.scale > 1 ? 1 : 2.2, {x:e.clientX-r.left,y:e.clientY-r.top}); });
     applyZoom(zoomState.scale);
   }
 
@@ -101,7 +130,7 @@
       return `<button type="button" class="${type} ${selected?'selected':''}" style="left:${p.x}%;top:${p.y}%" onclick="event.preventDefault();event.stopPropagation();${action}" aria-label="${n.type==='glyph'?'Glyph socket':'Paragon node'}">${label}</button>`;
     }).join('');
     const glyphPicker = showGlyph ? `<div class="glyphModal"><div class="glyphCard"><button type="button" class="closeGlyph" onclick="closeGlyphPicker()">×</button><h3>Glyph Socket</h3><p>Choose the glyph for <b>${def.name}</b>.</p><input class="glyphSearch" placeholder="Search glyphs..." oninput="filterGlyphList(this.value)"><select id="glyphSelect" onchange="pickGlyph(this.value)"><option value="">No glyph</option>${glyphList.map(g=>`<option value="${g}" ${g===b.glyph?'selected':''}>${g}</option>`).join('')}</select><label>Glyph level<input type="number" min="1" max="100" value="${b.glyphLevel||1}" oninput="setGlyphLevel(this.value)"></label></div></div>` : '';
-    root.innerHTML = `<div class="paragonWrap exactImageMode"><div class="boardTabs">${tabs}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${opts}</select></label><div class="paragonControls"><button type="button" onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button type="button" onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Tap real nodes to select/deselect</span><span>Tap the red glyph socket to choose glyph</span></div><div class="nodeInfo"><b>${def.name}</b><br>Glyph: ${b.glyph || 'None'} ${b.glyph ? '(level '+(b.glyphLevel||1)+')' : ''}<br><span id="paragonSelectedLine">${b.nodes.length} selected nodes on this board</span></div></div><div class="zoomControls"><button type="button" onclick="zoomOutParagon()">−</button><span id="zoomLabel">100%</span><button type="button" onclick="zoomInParagon()">+</button><button type="button" onclick="resetParagonZoom()">Reset</button><span class="zoomHint">Pinch to zoom, drag to pan</span></div><div class="paragonBoard imageBoard"><div class="imageStage rot${b.rotation}"><img src="${def.img}" alt="${def.name} paragon board" draggable="false">${nodeBtns}</div></div></div>${glyphPicker}</div>`;
+    root.innerHTML = `<div class="paragonWrap exactImageMode"><div class="boardTabs">${tabs}</div><div class="paragonTop"><div class="paragonPanel"><label>Board<select onchange="setParagonBoard(${paragon.active},this.value)">${opts}</select></label><div class="paragonControls"><button type="button" onclick="rotateBoard(${paragon.active})">Rotate ${b.rotation}°</button><button type="button" onclick="removeParagonBoard(${paragon.active})">Remove Board</button></div><div class="legend"><span>Tap real nodes to select/deselect</span><span>Tap the red glyph socket to choose glyph</span></div><div class="nodeInfo"><b>${def.name}</b><br>Glyph: ${b.glyph || 'None'} ${b.glyph ? '(level '+(b.glyphLevel||1)+')' : ''}<br><span id="paragonSelectedLine">${b.nodes.length} selected nodes on this board</span></div></div><div class="zoomControls"><button type="button" onclick="zoomOutParagon()">−</button><span class="zoomLabel">100%</span><button type="button" onclick="zoomInParagon()">+</button><button type="button" onclick="resetParagonZoom()">Reset</button><span class="zoomHint">Pinch/spread on the board to zoom. Drag while zoomed to pan.</span></div><div class="paragonBoard imageBoard"><div class="boardZoomOverlay"><button type="button" onclick="zoomOutParagon()">−</button><span class="zoomLabel">100%</span><button type="button" onclick="zoomInParagon()">+</button><button type="button" onclick="resetParagonZoom()">Reset</button></div><div class="imageStage rot${b.rotation}"><img src="${def.img}" alt="${def.name} paragon board" draggable="false">${nodeBtns}</div></div></div>${glyphPicker}</div>`;
     setTimeout(attachZoomHandlers, 0);
   }
 
