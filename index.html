@@ -1,1 +1,64 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0d1020"><title>Sorcerer Build Planner</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="styles.css"></head><body><header><div><p class="eyebrow">Offline Diablo-style planner</p><input id="buildName" aria-label="Build name"></div><div class="stats"><span><b id="spent">0 / 58</b><small>points</small></span><span><b id="activeCount">0</b><small>active skills</small></span><span><b id="keyPassive">None</b><small>key passive</small></span></div></header><main><section class="panel"><h1>Sorcerer Skill Tree</h1><p>Tap +/− to theorycraft. Progression unlocks at 0, 2, 6, 11, 16, 23, and 33 spent points. Data is stored locally on this device.</p><div id="filters"></div><div class="actions"><button onclick="exportBuild()">Export JSON</button><button onclick="importBuild()">Import JSON</button><button onclick="resetBuild()">Reset</button></div><textarea id="exportText" placeholder="Export appears here. Paste another build JSON here to import."></textarea></section><div id="tree"></div></main><footer>Fan-made planner scaffold. No Blizzard art, logos, or protected UI assets included.</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0d1020">
+  <title>Sorcerer Build Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div>
+    <p class="eyebrow">Offline Diablo-style planner</p>
+    <input id="buildName" aria-label="Build name">
+  </div>
+  <div class="stats">
+    <span><b id="spent">0 / 58</b><small>points</small></span>
+    <span><b id="activeCount">0</b><small>active skills</small></span>
+    <span><b id="gearCount">0 / 10</b><small>gear slots</small></span>
+    <span><b id="keyPassive">None</b><small>key passive</small></span>
+  </div>
+</header>
+<nav class="tabs" aria-label="Planner sections">
+  <button class="tab on" data-tab="skills" onclick="switchTab('skills')">Skills</button>
+  <button class="tab" data-tab="gear" onclick="switchTab('gear')">Gear</button>
+  <button class="tab" data-tab="export" onclick="switchTab('export')">Export</button>
+</nav>
+<main>
+  <section id="skillsTab" class="tabPage">
+    <section class="panel">
+      <h1>Sorcerer Skill Tree</h1>
+      <p>Tap +/− to theorycraft. Progression unlocks at 0, 2, 6, 11, 16, 23, and 33 spent points. Data is stored locally on this device.</p>
+      <div id="filters"></div>
+      <div class="actions"><button onclick="resetBuild()">Reset Skills</button></div>
+    </section>
+    <div id="tree"></div>
+  </section>
+  <section id="gearTab" class="tabPage hidden">
+    <section class="panel">
+      <h1>Gear Planner</h1>
+      <p>Select a Unique to auto-fill fixed affixes, or choose Custom Legendary/Rare and search affixes manually. Type “int” in an affix box to find Intelligence.</p>
+      <div class="actions"><button onclick="resetGear()">Reset Gear</button></div>
+    </section>
+    <div id="gearGrid"></div>
+  </section>
+  <section id="exportTab" class="tabPage hidden">
+    <section class="panel">
+      <h1>Export / Import</h1>
+      <p>Exports include skills and gear. Copy the JSON to send builds to friends.</p>
+      <div class="actions">
+        <button onclick="exportBuild()">Export JSON</button>
+        <button onclick="importBuild()">Import JSON</button>
+      </div>
+      <textarea id="exportText" placeholder="Export appears here. Paste another build JSON here to import."></textarea>
+    </section>
+  </section>
+</main>
+<datalist id="affixOptions"></datalist>
+<datalist id="aspectOptions"></datalist>
+<footer>Fan-made planner scaffold. No Blizzard art, logos, or protected UI assets included.</footer>
+<script src="app.js"></script>
+</body>
+</html>
