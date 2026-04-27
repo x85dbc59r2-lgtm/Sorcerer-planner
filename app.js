@@ -71,49 +71,11 @@ let buildName = state.buildName || 'My Sorcerer Build';
 let activeFilter = 'All';
 const totalMaxPoints = 58;
 
-function upgradeId(skillId, index){ return `upgrade_${skillId}_${index}`; }
-function upgradeRank(skillId, index){ return selected[upgradeId(skillId,index)] || 0; }
-function baseRank(skill){ return selected[skill.id] || 0; }
-function isUpgradeSkillId(id){ return String(id||'').startsWith('upgrade_'); }
-function skillPointTotal(){ return Object.values(selected).reduce((a,b)=>a+b,0); }
-function spent(){ return skillPointTotal(); }
-function unlocked(skill){ return spent() >= skill.requires || baseRank(skill)>0; }
-function upgradeUnlocked(skill, index){
-  if(!skill.upgrades || !skill.upgrades[index]) return false;
-  if(baseRank(skill) < 1) return false;
-  if(index === 0) return true;
-  // Branch upgrades require the Enhanced/Prime upgrade first.
-  return upgradeRank(skill.id,0) > 0;
-}
-function selectedUpgradeNames(skill){
-  return (skill.upgrades||[]).filter((_,i)=>upgradeRank(skill.id,i)>0);
-}
-function clearSkillUpgrades(skill){
-  (skill.upgrades||[]).forEach((_,i)=>{ delete selected[upgradeId(skill.id,i)]; });
-}
-function pointUpgrade(skill, index, delta){
-  const id = upgradeId(skill.id,index);
-  const cur = selected[id] || 0;
-  const next = Math.max(0, Math.min(1, cur + delta));
-  if(delta > 0){
-    if(!upgradeUnlocked(skill,index)) return;
-    if(spent() >= totalMaxPoints) return;
-    // Final choice branches are mutually exclusive: after Enhanced, choose one branch.
-    if(index > 0){
-      (skill.upgrades||[]).forEach((_,i)=>{ if(i>0 && i!==index) selected[upgradeId(skill.id,i)] = 0; });
-    }
-  }
-  selected[id] = next;
-  if(next === 0) delete selected[id];
-  // Removing Enhanced/Prime removes branch upgrades below it.
-  if(index === 0 && next === 0){
-    (skill.upgrades||[]).forEach((_,i)=>{ if(i>0) delete selected[upgradeId(skill.id,i)]; });
-  }
-  save(); render();
-}
+function spent(){ return Object.values(selected).reduce((a,b)=>a+b,0); }
+function unlocked(skill){ return spent() >= skill.requires || (selected[skill.id]||0)>0; }
 function save(){ localStorage.setItem('sorcPlannerState', JSON.stringify({selected, buildName})); }
 function point(skill, delta){
-  const current = baseRank(skill);
+  const current = selected[skill.id] || 0;
   const next = Math.max(0, Math.min(skill.max, current + delta));
   if(delta > 0 && !unlocked(skill)) return;
   if(delta > 0 && spent() >= totalMaxPoints) return;
@@ -121,37 +83,17 @@ function point(skill, delta){
     skillData.filter(s=>s.type==='Key Passive').forEach(s=>selected[s.id]=0);
   }
   selected[skill.id] = next;
-  if(next === 0){
-    delete selected[skill.id];
-    clearSkillUpgrades(skill);
-  }
   save(); render();
 }
 function resetBuild(){ if(confirm('Reset all points?')){ Object.keys(selected).forEach(k=>delete selected[k]); save(); render(); } }
 function exportBuild(){
-  const payload = {buildName, pointsSpent: spent(), selected, skills: skillData.filter(s=>baseRank(s)>0).map(s=>({name:s.name, rank:baseRank(s), upgrades:selectedUpgradeNames(s)}))};
+  const payload = {buildName, pointsSpent: spent(), selected, skills: skillData.filter(s=>(selected[s.id]||0)>0).map(s=>({name:s.name, rank:selected[s.id]}))};
   navigator.clipboard?.writeText(JSON.stringify(payload,null,2));
   document.querySelector('#exportText').value = JSON.stringify(payload,null,2);
 }
 function importBuild(){
   try { const data = JSON.parse(document.querySelector('#exportText').value); Object.keys(selected).forEach(k=>delete selected[k]); Object.assign(selected, data.selected || {}); buildName = data.buildName || buildName; save(); render(); }
   catch(e){ alert('Paste a valid build JSON export first.'); }
-}
-function renderSkillUpgrades(skill){
-  if(!skill.upgrades || !skill.upgrades.length) return '';
-  const baseActive = baseRank(skill) > 0;
-  return `<div class="upgradeTree ${baseActive?'open':'closed'}">
-    ${(skill.upgrades||[]).map((name,i)=>{
-      const rank = upgradeRank(skill.id,i);
-      const unlocked = upgradeUnlocked(skill,i);
-      const branch = i>0 ? 'branch' : 'enhanced';
-      const lockText = !baseActive ? 'Requires 1 base point' : (i>0 && !upgradeRank(skill.id,0) ? `Requires ${skill.upgrades[0]}` : '');
-      return `<div class="upgradeRow ${branch} ${rank?'picked':''} ${unlocked?'':'locked'}">
-        <div><b>${name}</b><small>${i===0?'Enhancement':(skill.upgrades.length===2?'Final upgrade':'Choice upgrade')}</small>${lockText?`<em>${lockText}</em>`:''}</div>
-        <div class="miniControls"><button onclick="pointUpgrade(skillData.find(s=>s.id==='${skill.id}'),${i},-1)">−</button><strong>${rank}/1</strong><button onclick="pointUpgrade(skillData.find(s=>s.id==='${skill.id}'),${i},1)">+</button></div>
-      </div>`;
-    }).join('')}
-  </div>`;
 }
 function render(){
   document.querySelector('#buildName').value = buildName;
@@ -168,12 +110,11 @@ function render(){
     section.innerHTML = `<div class="clusterHead"><h2>${cluster}</h2><span>Unlock: ${skills[0].requires} pts</span></div><div class="nodes"></div>`;
     const nodes = section.querySelector('.nodes');
     skills.forEach(skill=>{
-      const rank = baseRank(skill);
+      const rank = selected[skill.id] || 0;
       const lock = !unlocked(skill);
       const div = document.createElement('article');
       div.className = `card ${skill.element.toLowerCase()} ${rank?'picked':''} ${lock?'locked':''}`;
-      const upgradeHtml = renderSkillUpgrades(skill);
-      div.innerHTML = `<div class="icon">${skill.element==='Fire'?'🔥':skill.element==='Frost'?'❄️':skill.element==='Lightning'?'⚡':'✦'}</div><div class="content"><div class="row"><h3>${skill.name}</h3><span class="pill">${skill.type}</span></div><p>${skill.desc}</p><small>${skill.upgrades.length ? 'Enhancements unlock after 1 point in the base skill.' : 'Passive ranks only'}</small><div class="controls"><button onclick="point(skillData.find(s=>s.id==='${skill.id}'),-1)">−</button><strong>${rank}/${skill.max}</strong><button onclick="point(skillData.find(s=>s.id==='${skill.id}'),1)">+</button>${lock?`<em>Requires ${skill.requires} pts</em>`:''}</div>${upgradeHtml}</div>`;
+      div.innerHTML = `<div class="icon">${skill.element==='Fire'?'🔥':skill.element==='Frost'?'❄️':skill.element==='Lightning'?'⚡':'✦'}</div><div class="content"><div class="row"><h3>${skill.name}</h3><span class="pill">${skill.type}</span></div><p>${skill.desc}</p><small>${skill.upgrades.join(' · ') || 'Passive ranks only'}</small><div class="controls"><button onclick="point(skillData.find(s=>s.id==='${skill.id}'),-1)">−</button><strong>${rank}/${skill.max}</strong><button onclick="point(skillData.find(s=>s.id==='${skill.id}'),1)">+</button>${lock?`<em>Requires ${skill.requires} pts</em>`:''}</div></div>`;
       nodes.appendChild(div);
     });
     tree.appendChild(section);
@@ -424,7 +365,7 @@ function resetGear(){
 function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 exportBuild = function(){
-  const payload = {buildName, pointsSpent: spent(), selected, gear, skills: skillData.filter(s=>baseRank(s)>0).map(s=>({name:s.name, rank:baseRank(s), upgrades:selectedUpgradeNames(s)}))};
+  const payload = {buildName, pointsSpent: spent(), selected, gear, skills: skillData.filter(s=>(selected[s.id]||0)>0).map(s=>({name:s.name, rank:selected[s.id]}))};
   navigator.clipboard?.writeText(JSON.stringify(payload,null,2));
   document.querySelector('#exportText').value = JSON.stringify(payload,null,2);
 };
@@ -505,7 +446,7 @@ const previousSaveWithGear = save;
 save = function(){ localStorage.setItem('sorcPlannerState', JSON.stringify({selected, buildName, gear, paragon})); };
 const previousRenderWithGear = render;
 render = function(){ previousRenderWithGear(); renderHeaderParagon(); };
-exportBuild = function(){ const payload={buildName,pointsSpent:spent(),selected,gear,paragon,skills:skillData.filter(s=>baseRank(s)>0).map(s=>({name:s.name,rank:baseRank(s),upgrades:selectedUpgradeNames(s)}))}; navigator.clipboard?.writeText(JSON.stringify(payload,null,2)); document.querySelector('#exportText').value=JSON.stringify(payload,null,2); };
+exportBuild = function(){ const payload={buildName,pointsSpent:spent(),selected,gear,paragon,skills:skillData.filter(s=>(selected[s.id]||0)>0).map(s=>({name:s.name,rank:selected[s.id]}))}; navigator.clipboard?.writeText(JSON.stringify(payload,null,2)); document.querySelector('#exportText').value=JSON.stringify(payload,null,2); };
 importBuild = function(){ try{ const data=JSON.parse(document.querySelector('#exportText').value); Object.keys(selected).forEach(k=>delete selected[k]); Object.assign(selected,data.selected||{}); buildName=data.buildName||buildName; gear=data.gear||emptyGear(); gearSlots.forEach(s=>{ if(!gear[s]) gear[s]=emptyGear()[s]; }); paragon=data.paragon||defaultParagon(); save(); render(); renderGear(); renderParagon(); }catch(e){ alert('Paste a valid build JSON export first.'); } };
 // Expose button handlers for mobile Safari/GitHub Pages inline events
 window.switchTab = switchTab;
@@ -525,7 +466,6 @@ window.setGlyph = setGlyph;
 window.setGlyphLevel = setGlyphLevel;
 window.rotateBoard = rotateBoard;
 window.togglePNode = togglePNode;
-window.pointUpgrade = pointUpgrade;
 window.resetParagon = resetParagon;
 window.renderParagon = renderParagon;
 
