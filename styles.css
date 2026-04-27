@@ -60,7 +60,7 @@
 /* Image-backed paragon mode */
 .imageMode .paragonTop{align-items:flex-start}
 .imageBoard{overflow:auto; -webkit-overflow-scrolling:touch; max-height:76vh; padding:0; background:#060812; border-radius:22px;}
-.imageStage{position:relative; width:min(980px, 145vw); margin:0 auto; touch-action:manipulation; transform-origin:center center;}
+.imageStage{position:relative; width:min(980px, 145vw); margin:0 auto; touch-action:manipulation; pointer-events:none; transform-origin:center center;}
 .imageStage img{display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; opacity:.94; border-radius:18px;}
 .imageStage.rot90 img{transform:rotate(90deg);}
 .imageStage.rot180 img{transform:rotate(180deg);}
@@ -82,11 +82,11 @@
 /* Exact image-backed clickable paragon boards */
 .exactImageMode .imageStage{position:relative; max-width:100%; overflow:auto; touch-action:pan-x pan-y;}
 .exactImageMode .imageStage img{display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; border-radius:18px;}
-.nodeHotspot,.glyphHotspot{position:absolute; transform:translate(-50%,-50%); border:0; margin:0; padding:0; background:transparent; color:white; z-index:5; touch-action:manipulation;}
+.nodeHotspot,.glyphHotspot{position:absolute; transform:translate(-50%,-50%); border:0; margin:0; padding:0; background:transparent; color:white; z-index:5; touch-action:manipulation; pointer-events:none;}
 .nodeHotspot{width:6.2%; aspect-ratio:1/1; border-radius:50%;}
 .nodeHotspot.selected{background:rgba(106,137,255,.20); outline:3px solid rgba(111,134,255,.92); box-shadow:0 0 0 5px rgba(111,134,255,.24),0 0 18px rgba(111,134,255,.65);}
-.glyphHotspot{width:7.2%; aspect-ratio:1/1; border-radius:12px; font-weight:900; font-size:clamp(10px,2.1vw,18px); display:flex; align-items:center; justify-content:center; color:#fff; text-shadow:0 1px 4px #000;}
-.glyphHotspot::after{content:""; position:absolute; inset:-6px; border-radius:15px; border:2px solid rgba(150,112,255,.62); box-shadow:0 0 14px rgba(150,112,255,.5); opacity:.75;}
+.glyphHotspot{width:4.8%; aspect-ratio:1/1; border-radius:12px; font-weight:900; font-size:clamp(10px,2.1vw,18px); display:flex; align-items:center; justify-content:center; color:#fff; text-shadow:0 1px 4px #000;}
+.glyphHotspot::after{content:""; position:absolute; inset:-2px; border-radius:15px; border:2px solid rgba(150,112,255,.62); box-shadow:0 0 14px rgba(150,112,255,.5); opacity:.75;}
 .glyphHotspot:not(:empty){background:rgba(86,72,160,.68);}
 .exactImageMode .legend{display:flex; flex-wrap:wrap; gap:8px; font-size:.9rem; opacity:.85;}
 .exactImageMode .nodeInfo{line-height:1.45;}
@@ -100,7 +100,7 @@
 .exactImageMode .imageBoard{overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain;max-height:72vh;background:#050711;border:1px solid rgba(120,135,255,.18)}
 .exactImageMode .imageStage{width:100%;max-width:none;margin:0 auto;transform-origin:top left;touch-action:auto}
 .exactImageMode .imageStage img{width:100%;height:auto;display:block}
-@media(max-width:700px){.zoomHint{width:100%;font-size:12px}.exactImageMode .imageBoard{max-height:68vh}.nodeHotspot{width:8.6%}.glyphHotspot{width:9.8%}}
+@media(max-width:700px){.zoomHint{width:100%;font-size:12px}.exactImageMode .imageBoard{max-height:68vh}.nodeHotspot{width:8.6%}.glyphHotspot{width:5.6%}}
 
 /* Zoom overlay for image-backed paragon boards */
 .exactImageMode .imageBoard{position:relative; overflow:auto; -webkit-overflow-scrolling:touch; touch-action:none; user-select:none;}

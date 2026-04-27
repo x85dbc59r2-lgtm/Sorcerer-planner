@@ -43,7 +43,7 @@
     const distance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
     const localPoint=(touch)=>{ const r=board.getBoundingClientRect(); return {x: touch.clientX-r.left, y: touch.clientY-r.top}; };
     board.addEventListener('touchstart', (e)=>{
-      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(e.target && e.target.closest('.boardZoomOverlay')) return;
       if(e.touches && e.touches.length === 2){
         startDist = distance(e.touches[0], e.touches[1]); startScale = zoomState.scale;
       } else if(e.touches && e.touches.length === 1 && zoomState.scale > 1){
@@ -74,17 +74,22 @@
       if(!stageRect.width || !stageRect.height || !nodes.length) return null;
       const px = ((clientX - stageRect.left) / stageRect.width) * 100;
       const py = ((clientY - stageRect.top) / stageRect.height) * 100;
-      let best = null;
-      let bestDist = Infinity;
+
+      // Glyph sockets and normal nodes now use the exact same nearest-node hitbox.
+      // The glyph socket no longer gets a special priority zone, so it cannot
+      // steal taps from nearby normal nodes. If the nearest node is glyph, the
+      // glyph picker opens; otherwise the nearest normal node toggles.
+      let closest = null, closestDist = Infinity;
       for(const n of nodes){
         const rp = rotPoint(n.x, n.y, b.rotation);
         const dx = (px - rp.x) * stageRect.width / 100;
         const dy = (py - rp.y) * stageRect.height / 100;
         const d = Math.hypot(dx, dy);
-        const tol = n.type === 'glyph' ? Math.max(58, stageRect.width * 0.06) : Math.max(46, stageRect.width * 0.048);
-        if(d < tol && d < bestDist){ best = n; bestDist = d; }
+        if(d < closestDist){ closest = n; closestDist = d; }
       }
-      return best;
+
+      const tapTol = Math.max(42, Math.min(64, stageRect.width * 0.055));
+      return (closest && closestDist <= tapTol) ? closest : null;
     };
     const cssEsc = (v) => (window.CSS && CSS.escape) ? CSS.escape(v) : String(v).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
     const activateNearest = (clientX, clientY) => {
@@ -96,13 +101,13 @@
       return true;
     };
     board.addEventListener('touchstart', (e)=>{
-      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(e.target && e.target.closest('.boardZoomOverlay')) return;
       if(!e.touches || e.touches.length !== 1) return;
       const t=e.touches[0]; tapStart={x:t.clientX,y:t.clientY,time:Date.now()};
     }, {passive:true});
     board.addEventListener('touchend', (e)=>{
       if(!tapStart || !e.changedTouches || e.changedTouches.length !== 1){ tapStart=null; return; }
-      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))){ tapStart=null; return; }
+      if(e.target && e.target.closest('.boardZoomOverlay')){ tapStart=null; return; }
       const t=e.changedTouches[0];
       const moved=Math.hypot(t.clientX-tapStart.x, t.clientY-tapStart.y);
       if(moved < 20 && Date.now()-tapStart.time < 700){
@@ -111,7 +116,7 @@
       tapStart=null;
     }, {passive:false});
     board.addEventListener('click', (e)=>{
-      if(e.target && (e.target.closest('.nodeHotspot') || e.target.closest('.glyphHotspot') || e.target.closest('.boardZoomOverlay'))) return;
+      if(e.target && e.target.closest('.boardZoomOverlay')) return;
       if(activateNearest(e.clientX,e.clientY)){ e.preventDefault(); e.stopPropagation(); }
     });
 
