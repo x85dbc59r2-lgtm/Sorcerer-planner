@@ -151,8 +151,14 @@
 .lootItemGrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .lootItem{border:1px solid #303a68;background:#0f1529;color:#e8ecff;border-radius:999px;padding:9px 12px;font-weight:700;text-align:left}
 .lootItem.sorc{border-color:#5a83ff;background:#13234a}
-.lootItem.mythic{border-color:#b58cff;background:#2a1b48}
+.lootItem.universal{border-color:#d8aa36 !important;background:linear-gradient(180deg,#3b2c10,#171205) !important;color:#ffe6a3 !important;box-shadow:0 0 0 1px rgba(216,170,54,.35),0 0 14px rgba(216,170,54,.18)}
+.lootItem.mythic{border-color:#b58cff !important;background:linear-gradient(180deg,#2a1b48,#171027) !important;color:#f0e8ff !important;box-shadow:0 0 0 1px rgba(181,140,255,.35),0 0 14px rgba(181,140,255,.18)}
 .lootResult{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid #2d3761;border-radius:16px;margin-top:10px;background:#0f1529}
 .lootResult span{color:#bac5ee}
 .muted{color:#98a4cf!important}
 @media (min-width:800px){#lootResults{grid-template-columns:repeat(2,minmax(0,1fr))}.lootSummary{grid-column:1/-1}}
+
+.lootResult.universal{border-color:#d8aa36 !important;background:rgba(216,170,54,.08) !important}
+.lootResult.universal b{color:#ffe6a3 !important}
+.lootResult.mythic{border-color:#b58cff !important;background:rgba(181,140,255,.1) !important}
+.lootResult.mythic b{color:#f0e8ff !important}
