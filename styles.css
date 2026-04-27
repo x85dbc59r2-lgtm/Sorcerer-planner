@@ -118,3 +118,20 @@
 .exactImageMode .zoomControls{display:none!important;}
 .boardZoomOverlay .zoomHint{font-size:12px; color:#b7c0e6; padding:0 6px; white-space:nowrap;}
 @media(max-width:700px){.boardZoomOverlay .zoomHint{display:none}.selectedPathSvg polyline{stroke-width:1.35}}
+
+/* Restored clean skill upgrade breakdown styling */
+.upgradeTree{margin-top:14px;display:grid;gap:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}
+.upgradeTree.closed{opacity:.9}
+.upgradeRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(125,140,255,.22);border-radius:16px;background:rgba(10,14,34,.42);line-height:1.25}
+.upgradeRow.enhanced{margin-left:0}
+.upgradeRow.branch{margin-left:18px;position:relative}
+.upgradeRow.branch:before{content:"";position:absolute;left:-13px;top:-11px;width:12px;height:50%;border-left:2px solid rgba(125,140,255,.28);border-bottom:2px solid rgba(125,140,255,.28);border-bottom-left-radius:8px}
+.upgradeRow.picked{border-color:rgba(116,238,178,.75);box-shadow:0 0 0 2px rgba(116,238,178,.14),0 0 18px rgba(116,238,178,.12)}
+.upgradeRow.locked{opacity:.45}
+.upgradeRow b{display:block;font-size:.95rem;line-height:1.15;color:#fff;margin:0 0 2px 0}
+.upgradeRow small{display:block;color:var(--muted);margin-top:2px;line-height:1.15}
+.upgradeRow em{display:block;color:#f0b36a;font-size:.78rem;font-style:normal;margin-top:4px;line-height:1.15}
+.miniControls{display:flex;align-items:center;gap:8px;white-space:nowrap;margin-left:auto}
+.miniControls button{width:42px;height:42px;border-radius:14px;border:0;background:#263568;color:#fff;font-size:1.15rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.miniControls strong{min-width:34px;text-align:center;color:#fff;font-weight:900}
+@media(max-width:520px){.upgradeRow{align-items:flex-start;flex-direction:column}.miniControls{width:100%;justify-content:flex-end}.upgradeRow.branch{margin-left:10px}}
