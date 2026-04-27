@@ -110,18 +110,11 @@
 .exactImageMode .imageStage{transition:width .12s ease; transform-origin:top left;}
 @media(max-width:700px){.boardZoomOverlay{position:sticky; top:6px; left:6px; margin:6px}.boardZoomOverlay button{min-width:42px; min-height:38px}.zoomControls{font-size:12px}.zoomControls button{min-height:36px}}
 
-/* Skill enhancement gating */
-.upgradeTree{margin-top:14px;display:grid;gap:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}
-.upgradeRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(125,140,255,.22);border-radius:16px;background:rgba(10,14,34,.42)}
-.upgradeRow.enhanced{margin-left:0}
-.upgradeRow.branch{margin-left:18px;position:relative}
-.upgradeRow.branch:before{content:"";position:absolute;left:-13px;top:-11px;width:12px;height:50%;border-left:2px solid rgba(125,140,255,.28);border-bottom:2px solid rgba(125,140,255,.28);border-bottom-left-radius:8px}
-.upgradeRow.picked{border-color:rgba(116,238,178,.75);box-shadow:0 0 0 2px rgba(116,238,178,.14),0 0 18px rgba(116,238,178,.12)}
-.upgradeRow.locked{opacity:.45}
-.upgradeRow b{display:block;font-size:.95rem}
-.upgradeRow small{display:block;color:var(--muted);margin-top:2px}
-.upgradeRow em{display:block;color:#f0b36a;font-size:.78rem;font-style:normal;margin-top:4px}
-.miniControls{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-.miniControls button{min-width:38px;height:38px;border-radius:12px;font-weight:900}
-.miniControls strong{min-width:28px;text-align:center}
-@media(max-width:520px){.upgradeRow{align-items:flex-start;flex-direction:column}.miniControls{width:100%;justify-content:flex-end}.upgradeRow.branch{margin-left:10px}}
+/* Paragon path visual refinement */
+.selectedPathSvg{position:absolute; inset:0; width:100%; height:100%; z-index:4; pointer-events:none; overflow:visible;}
+.selectedPathSvg polyline{fill:none; stroke:rgba(116,142,255,.92); stroke-width:1.15; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 1.6px rgba(116,142,255,.95)); vector-effect:non-scaling-stroke;}
+.nodeHotspot.selected{background:transparent!important; outline:none!important; box-shadow:none!important;}
+.nodeHotspot.selected::after{content:""; position:absolute; left:50%; top:50%; width:34%; height:34%; transform:translate(-50%,-50%); border-radius:50%; background:rgba(143,161,255,.95); box-shadow:0 0 0 2px rgba(73,93,190,.65),0 0 10px rgba(116,142,255,.85);}
+.exactImageMode .zoomControls{display:none!important;}
+.boardZoomOverlay .zoomHint{font-size:12px; color:#b7c0e6; padding:0 6px; white-space:nowrap;}
+@media(max-width:700px){.boardZoomOverlay .zoomHint{display:none}.selectedPathSvg polyline{stroke-width:1.35}}
