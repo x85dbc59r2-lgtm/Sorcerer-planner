@@ -135,3 +135,24 @@
 .miniControls button{width:42px;height:42px;border-radius:14px;border:0;background:#263568;color:#fff;font-size:1.15rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
 .miniControls strong{min-width:34px;text-align:center;color:#fff;font-weight:900}
 @media(max-width:520px){.upgradeRow{align-items:flex-start;flex-direction:column}.miniControls{width:100%;justify-content:flex-end}.upgradeRow.branch{margin-left:10px}}
+
+/* Unique loot table tab */
+.lootSearch{width:100%;box-sizing:border-box;margin-top:14px;padding:16px 18px;border-radius:18px;border:1px solid #34406d;background:#10172e;color:#fff;font-size:16px;outline:none}
+.lootSearch:focus{border-color:#6f84ff;box-shadow:0 0 0 3px rgba(111,132,255,.18)}
+.lootFilters{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.lootFilter{border:1px solid #34406d;background:#151c38;color:#dfe5ff;border-radius:999px;padding:10px 14px;font-weight:800}
+.lootFilter.active{background:#6177ff;color:#fff;border-color:#8fa0ff}
+#lootResults{display:grid;gap:14px;margin:18px 0 80px}
+.lootBossCard,.lootSummary{background:#12182f;border:1px solid #2d3761;border-radius:24px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.lootBossHead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid #2d3761;margin-bottom:12px;padding-bottom:10px}
+.lootBossHead h2{margin:0;font-size:24px}
+.lootBossHead span{background:#24305a;border-radius:999px;padding:7px 10px;color:#cbd4ff;font-weight:800;white-space:nowrap}
+.lootBossCard p{margin:6px 0;color:#cbd4ff}
+.lootItemGrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.lootItem{border:1px solid #303a68;background:#0f1529;color:#e8ecff;border-radius:999px;padding:9px 12px;font-weight:700;text-align:left}
+.lootItem.sorc{border-color:#5a83ff;background:#13234a}
+.lootItem.mythic{border-color:#b58cff;background:#2a1b48}
+.lootResult{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid #2d3761;border-radius:16px;margin-top:10px;background:#0f1529}
+.lootResult span{color:#bac5ee}
+.muted{color:#98a4cf!important}
+@media (min-width:800px){#lootResults{grid-template-columns:repeat(2,minmax(0,1fr))}.lootSummary{grid-column:1/-1}}
