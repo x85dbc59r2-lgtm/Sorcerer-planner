@@ -140,7 +140,8 @@ function importBuild(){
 function renderSkillUpgrades(skill){
   if(!skill.upgrades || !skill.upgrades.length) return '';
   const baseActive = baseRank(skill) > 0;
-  return `<div class="upgradeTree ${baseActive?'open':'closed'}">
+  if(!baseActive) return '';
+  return `<div class="upgradeTree open">
     ${(skill.upgrades||[]).map((name,i)=>{
       const rank = upgradeRank(skill.id,i);
       const unlocked = upgradeUnlocked(skill,i);
