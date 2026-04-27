@@ -510,14 +510,23 @@ exportBuild = function(){ const payload={buildName,pointsSpent:spent(),selected,
 importBuild = function(){ try{ const data=JSON.parse(document.querySelector('#exportText').value); Object.keys(selected).forEach(k=>delete selected[k]); Object.assign(selected,data.selected||{}); buildName=data.buildName||buildName; gear=data.gear||emptyGear(); gearSlots.forEach(s=>{ if(!gear[s]) gear[s]=emptyGear()[s]; }); paragon=data.paragon||defaultParagon(); save(); render(); renderGear(); renderParagon(); }catch(e){ alert('Paste a valid build JSON export first.'); } };
 
 // ===== Unique loot table tab =====
-const lootTables = [{"boss": "The Butcher", "materials": "Bloodied Activities — Pound of Flesh ×3", "location": "The Broiler - Gea Kul", "items": ["Blood-Mad Idol", "Wendigo Brand", "Rustbitten Dirk", "Thousand-Eye Reaver", "Wyrdskin"]}, {"boss": "Grigoire, The Galvanic Saint", "materials": "Helltides — Living Steel ×12", "location": "Hall of the Penitent - Dry Steppes", "items": ["Penitent Greaves", "Endurant Faith", "The Butcher's Cleaver", "Rage of Harrogath", "Battle Trance", "Twin Strikes", "Unbroken Chain", "Insatiable Fury", "Hunter's Zenith", "Waxing Gibbous", "Earthbreaker", "Khamsin Steppewalkers", "Howl from Below", "Greaves of the Empty Tomb", "Ebonpiercer", "Path of Trag'Oul", "The Mortacrux", "Word of Hakan", "Grasp of Shadow", "Saboteur's Signet", "Shroud of Khanduras", "Bands of Ichorous Rose", "Staff of Lam Esen", "Iceheart Brais", "Flameweaver", "Axial Conduit", "Hail of Verglas", "Protection of the Prime", "Peacemonger's Signet", "Ring of the Midnight Sun", "Loyalty's Mantle", "Hesha e Kesungi", "Mantle of the Grey", "Sundered Night", "Supplication"]}, {"boss": "Echo of Varshan", "materials": "Tree of Whispers — Malignant Heart ×12", "location": "Malignant Burrow - Tree of Whispers", "items": ["Frostburn", "Mother's Embrace", "Rakanoth's Wake", "Shard of Verathiel", "Fields of Crimson", "100,000 Steps", "Gohr's Devastating Grips", "Ring of Red Furor", "Sabre of Tsasgal", "Mad Wolf's Glee", "Vasily's Prayer", "Greatstaff of the Crone", "Airidah's Inexorable Will", "Rotting Lightbringer", "Bloodless Scream", "Deathless Visage", "Deathspeaker's Pendant", "Ring of the Sacrilegious Soul", "Gospel of the Devotee", "Condemnation", "Eyes in the Dark", "Skyhunter", "Writhing Band of Trickery", "Staff of Endless Rage", "Esu's Heirloom", "Raiment of the Infinite", "Tal Rasha's Iridescent Loop", "Orsivane", "Craze of the Dead God", "Ring of Writhing Moon", "Sunstained War-Crozier", "Balazan's Maxtlatl", "Arcadia", "Ward of the White Dove", "Dawnfire", "Sunbrand"]}, {"boss": "Lord Zir", "materials": "World Bosses, Legion Events — Exquisite Blood ×12", "location": "The Darkened Way - Fractured Peaks", "items": ["Razorplate", "Temerity", "Yen's Blessing", "Ramaladni's Magnum Opus", "Overkill", "Arreat's Bearing", "Ugly Bastard Helm", "Chainscourged Mail", "Fleshrender", "Wildheart Hunger", "Mjölnic Ryng", "Malefic Crescent", "Blood Artisan's Cuirass", "Lidless Wall", "Cruor's Embrace", "Kessime's Legacy", "Sanguivor, Blade of Zir", "Asheara's Khanjar", "Scoundrel's Kiss", "Assassin's Stride", "Pitfighter's Gull", "Orphan Maker", "Esadora's Overflowing Cameo", "Fractured Winterglass", "Okun's Catalyst", "Sidhe Bindings", "Vox Omnium", "Jacinth Shell", "Wushe Nak Pa", "Band of First Breath", "Path of the Emissary", "Cathedral's Song", "Red Sermon", "Sanctis of Kethamar"]}, {"boss": "The Beast in the Ice", "materials": "Nightmare Dungeons — Distilled Fear ×12", "location": "Glacial Fissure - Fractured Peaks", "items": ["Fists of Fate", "Tassets of the Dawning Sky", "Paingorger's Gauntlets", "Ancients' Oath", "Hellhammer", "Ring of the Ravenous", "Mantle of Mountain's Fury", "Hooves of the Mountain God", "Storm's Companion", "Unsung Ascetic's Wraps", "Stone of Vehemen", "Gathlen's Birthright", "Kilt of Blackwing", "Ring of Mendeln", "Mutilator Plate", "Indira's Memory", "The Unmaker", "Gravebloom", "Windforce", "Eaglehorn", "Beastfall Boots", "Deathmask of Nirmitruq", "Gloves of the Illuminator", "The Oculus", "Starfall Coronet", "Strike of Stormhorn", "Scorn of the Earth", "Wound Drinker", "Harmony of Ebewaka", "Ring of the Midday Hunt", "Bastion of Sir Matthias", "Seal of the Second Trumpet", "Light's Rebuke", "Wreath of Auric Laurel"]}, {"boss": "Urivar", "materials": "Tree of Whispers, World Bosses, Mercenary Bartering — Judicator's Mask ×12", "location": "Fields of Judgement - Nahantu", "items": ["Frostburn", "Paingorger's Gauntlets", "Temerity", "100,000 Steps", "Ring of the Ravenous", "Twin Strikes", "Overkill", "Hooves of the Mountain God", "Gathlen's Birthright", "Earthbreaker", "Storm's Companion", "Greatstaff of the Crone", "Malefic Crescent", "Rotting Lightbringer", "Bloodless Scream", "Ebonpiercer", "The Unmaker", "Blood Artisan's Cuirass", "Gospel of the Devotee", "Bands of Ichorous Rose", "Windforce", "Eyes in the Dark", "Scoundrel's Kiss", "Word of Hakan", "Deathmask of Nirmitruq", "Hail of Verglas", "Iceheart Brais", "Strike of Stormhorn", "Tal Rasha's Iridescent Loop", "Sidhe Bindings", "Craze of the Dead God", "Ring of the Midnight Sun", "Jacinth Shell", "Sunstained War-Crozier", "Balazan's Maxtlatl", "Hesha e Kesungi", "Cathedral's Song", "Judicant's Glaivehelm", "Light's Rebuke", "Mantle of the Grey", "Arcadia"]}, {"boss": "Harbinger of Hatred", "materials": "Urivar — Abhorrent Heart ×3", "location": "Harbinger's Den - Nahantu", "items": ["Melted Heart of Selig", "Andariel's Visage", "Harlequin Crest", "Ring of Starless Skies", "Shroud of False Death", "Heir of Perdition", "Tyrael's Might", "Banished Lord's Talisman", "Crown of Lucion", "Flickerstep", "Godslayer Crown", "Locran's Talisman", "Tibault's Will", "Doombringer", "The Grandfather", "Shattered Vow", "Bane of Ahjad-Den", "The Third Blade", "Ahavarion, Spear of Lycander", "Tempest Roar", "The Basilisk", "Black River", "The Hand of Naz", "Scoundrel's Leathers", "The Umbracrux", "Flamescar", "Galvanic Azurite", "Ophidian Iris", "Nesekem, The Herald", "Rod of Kepeleke", "Sunbird's Gorget", "Griswold's Opus", "Herald of Zakarum", "Argent Veil", "Judgment of Auriel"]}, {"boss": "Echo of Duriel", "materials": "Grigoire, Varshan — Shard of Agony ×3", "location": "Gaping Crevasse - Kehjistan", "items": ["Melted Heart of Selig", "Andariel's Visage", "Harlequin Crest", "Ring of Starless Skies", "Shroud of False Death", "Heir of Perdition", "Tyrael's Might", "Azurewrath", "Banished Lord's Talisman", "Crown of Lucion", "Godslayer Crown", "Soulbrand", "X'Fal's Corroded Signet", "Doombringer", "The Grandfather", "Shattered Vow", "Bane of Ahjad-Den", "Tuskhelm of Joritz the Mighty", "Ahavarion, Spear of Lycander", "Dolmen Stone", "Tempest Roar", "Blood Moon Breeches", "The Hand of Naz", "Cowl of the Nameless", "Scoundrel's Leathers", "Death's Pavane", "Blue Rose", "Ophidian Iris", "Nesekem, The Herald", "Rod of Kepeleke", "Sepazontec", "Herald's Morningstar", "Argent Veil", "Gate of the Red Dawn", "Griswold's Opus"]}, {"boss": "Echo of Andariel", "materials": "Lord Zir, Beast in Ice — Pincushioned Doll ×3", "location": "Hanged Man's Hall - Kehjistan", "items": ["Melted Heart of Selig", "Andariel's Visage", "Harlequin Crest", "Ring of Starless Skies", "Shroud of False Death", "Heir of Perdition", "Tyrael's Might", "Azurewrath", "Flickerstep", "Locran's Talisman", "Soulbrand", "Tibault's Will", "X'Fal's Corroded Signet", "Doombringer", "The Grandfather", "Shattered Vow", "Bane of Ahjad-Den", "Tuskhelm of Joritz the Mighty", "Ahavarion, Spear of Lycander", "Dolmen Stone", "The Basilisk", "Black River", "Blood Moon Breeches", "Cowl of the Nameless", "The Umbracrux", "Death's Pavane", "Blue Rose", "Flamescar", "Galvanic Azurite", "Nesekem, The Herald", "Sepazontec", "Sunbird's Gorget", "Herald of Zakarum", "Herald's Morningstar", "Gate of the Red Dawn", "Judgment of Auriel"]}, {"boss": "Belial, Lord of Lies", "materials": "Belial, Lord of Lies Ambush — Betrayer's Husk ×2", "location": "Palace of the Deceiver - Kehjistan", "items": []}, {"boss": "The Infernal Hordes", "materials": "Endgame Bosses, Helltides, Nightmare Dungeons, Whisper Caches — Infernal Hordes Compass ×1", "location": "Burning Hells", "items": ["Crown of Lucion", "Endurant Faith", "Locran's Talisman", "Rakanoth's Wake", "Shard of Verathiel", "The Third Blade", "The Basilisk", "The Mortacrux", "The Umbracrux", "Vox Omnium"]}];
-const sorcererOnlyLootNames = new Set(["Staff of Lam Esen", "Iceheart Brais", "Flameweaver", "Axial Conduit", "Hail of Verglas", "Staff of Endless Rage", "Esu's Heirloom", "Raiment of the Infinite", "Tal Rasha's Iridescent Loop", "Fractured Winterglass", "Okun's Catalyst", "Gloves of the Illuminator", "The Oculus", "Starfall Coronet", "Strike of Stormhorn", "Blue Rose", "Ophidian Iris", "Flamescar", "Galvanic Azurite"]);
-// Universal uniques below are usable by Sorcerer and can also be used by multiple classes.
-// Mythics are intentionally NOT in this set so they keep the purple mythic styling.
-const sorcererUniversalLootNames = new Set(["Frostburn", "Mother's Embrace", "Rakanoth's Wake", "Penitent Greaves", "Endurant Faith", "Razorplate", "Temerity", "Yen's Blessing", "Fists of Fate", "Tassets of the Dawning Sky", "Paingorger's Gauntlets", "Banished Lord's Talisman", "Crown of Lucion", "Flickerstep", "Godslayer Crown", "Locran's Talisman", "Tibault's Will", "Soulbrand", "X'Fal's Corroded Signet"]);
-const sorcererLootNames = new Set([...sorcererOnlyLootNames, ...sorcererUniversalLootNames]);
-const mythicLootNames = new Set(["Melted Heart of Selig", "Andariel's Visage", "Harlequin Crest", "Ring of Starless Skies", "Shroud of False Death", "Heir of Perdition", "Tyrael's Might", "Doombringer", "The Grandfather", "Shattered Vow", "Ahavarion, Spear of Lycander", "Nesekem, The Herald"]);
-let lootFilter = 'all';
+// Item-first Sorcerer loot table. Built from the Sorcerer-focused list supplied by the user.
+const lootTables = [
+  {boss:'The Butcher', materials:'Bloodied Activities — Pound of Flesh ×3', location:'The Broiler - Gea Kul', items:['Blood-Mad Idol','Wendigo Brand','Rustbitten Dirk','Thousand-Eye Reaver','Wyrdskin']},
+  {boss:'Grigoire, The Galvanic Saint', materials:'Helltides — Living Steel ×12', location:'Hall of the Penitent - Dry Steppes', items:['Penitent Greaves','Endurant Faith','The Butcher\'s Cleaver','Staff of Lam Esen','Iceheart Brais','Flameweaver','Axial Conduit','Hail of Verglas']},
+  {boss:'Echo of Varshan', materials:'Tree of Whispers — Malignant Heart ×12', location:'Malignant Burrow - Tree of Whispers', items:['Frostburn','Mother\'s Embrace','Rakanoth\'s Wake','Shard of Verathiel','Staff of Endless Rage','Esu\'s Heirloom','Raiment of the Infinite','Tal Rasha\'s Iridescent Loop','Orsivane']},
+  {boss:'Lord Zir', materials:'World Bosses, Legion Events — Exquisite Blood ×12', location:'The Darkened Way - Fractured Peaks', items:['Razorplate','Temerity','Yen\'s Blessing','Esadora\'s Overflowing Cameo','Fractured Winterglass','Okun\'s Catalyst','Sidhe Bindings','Vox Omnium']},
+  {boss:'The Beast in the Ice', materials:'Nightmare Dungeons — Distilled Fear ×12', location:'Glacial Fissure - Fractured Peaks', items:['Fists of Fate','Tassets of the Dawning Sky','Paingorger\'s Gauntlets','Gloves of the Illuminator','The Oculus','Starfall Coronet','Strike of Stormhorn']},
+  {boss:'Urivar', materials:'Tree of Whispers, World Bosses, Mercenary Bartering — Judicator\'s Mask ×12', location:'Fields of Judgement - Nahantu', items:['Frostburn','Paingorger\'s Gauntlets','Temerity','Hail of Verglas','Iceheart Brais','Strike of Stormhorn','Tal Rasha\'s Iridescent Loop','Sidhe Bindings']},
+  {boss:'Harbinger of Hatred', materials:'Urivar — Abhorrent Heart ×3', location:'Harbinger\'s Den - Nahantu', items:['Melted Heart of Selig','Andariel\'s Visage','Harlequin Crest','Ring of Starless Skies','Shroud of False Death','Heir of Perdition','Tyrael\'s Might','Banished Lord\'s Talisman','Crown of Lucion','Flickerstep','Godslayer Crown','Locran\'s Talisman','Tibault\'s Will','Ahavarion, Spear of Lycander','Flamescar','Galvanic Azurite','Ophidian Iris']},
+  {boss:'Echo of Duriel', materials:'Grigoire, Varshan — Shard of Agony ×3', location:'Gaping Crevasse - Kehjistan', items:['Melted Heart of Selig','Andariel\'s Visage','Harlequin Crest','Ring of Starless Skies','Shroud of False Death','Heir of Perdition','Tyrael\'s Might','Azurewrath','Banished Lord\'s Talisman','Crown of Lucion','Godslayer Crown','Soulbrand','X\'Fal\'s Corroded Signet','Ahavarion, Spear of Lycander','Blue Rose','Ophidian Iris']},
+  {boss:'Echo of Andariel', materials:'Lord Zir, Beast in Ice — Pincushioned Doll ×3', location:'Hanged Man\'s Hall - Kehjistan', items:['Melted Heart of Selig','Andariel\'s Visage','Harlequin Crest','Ring of Starless Skies','Shroud of False Death','Heir of Perdition','Tyrael\'s Might','Azurewrath','Flickerstep','Locran\'s Talisman','Soulbrand','Tibault\'s Will','X\'Fal\'s Corroded Signet','Ahavarion, Spear of Lycander','Blue Rose','Flamescar','Galvanic Azurite']},
+  {boss:'Belial, Lord of Lies', materials:'Belial, Lord of Lies Ambush — Betrayer\'s Husk ×2', location:'Palace of the Deceiver - Kehjistan', items:[]},
+  {boss:'The Infernal Hordes', materials:'Endgame Bosses, Helltides, Nightmare Dungeons, Whisper Caches — Infernal Hordes Compass ×1', location:'Burning Hells', items:['Crown of Lucion','Endurant Faith','Locran\'s Talisman','Rakanoth\'s Wake','Shard of Verathiel','Vox Omnium']}
+];
+
+const mythicLootNames = new Set(['Melted Heart of Selig','Andariel\'s Visage','Harlequin Crest','Ring of Starless Skies','Shroud of False Death','Heir of Perdition','Tyrael\'s Might','Ahavarion, Spear of Lycander']);
+let lootFilter = 'sorcerer';
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -528,54 +537,62 @@ function setLootFilter(filter){
   document.querySelectorAll('.lootFilter').forEach(b=>b.classList.toggle('active', b.dataset.filter===filter));
   renderLoot();
 }
-function itemAllowedByLootFilter(item){
-  if(lootFilter === 'sorcerer') return sorcererLootNames.has(item) || mythicLootNames.has(item);
-  if(lootFilter === 'mythic') return mythicLootNames.has(item);
+function buildLootIndex(){
+  const map = new Map();
+  lootTables.forEach(boss=>{
+    (boss.items || []).forEach(item=>{
+      if(!map.has(item)) map.set(item, {name:item, bosses:[], mythic:mythicLootNames.has(item)});
+      map.get(item).bosses.push({boss:boss.boss, materials:boss.materials, location:boss.location});
+    });
+  });
+  return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+}
+function itemAllowedByLootFilter(entry){
+  if(lootFilter === 'mythic') return entry.mythic;
   return true;
 }
 function renderLoot(){
   const root = document.querySelector('#lootResults'); if(!root) return;
   const input = document.querySelector('#lootSearch');
   const q = (input?.value || '').trim().toLowerCase();
-  const searchMatches = [];
-  const cards = [];
-
-  lootTables.forEach(boss=>{
-    const bossHay = (boss.boss + ' ' + boss.materials + ' ' + boss.location).toLowerCase();
-    let items = (boss.items || []).filter(item => itemAllowedByLootFilter(item));
-    if(q) items = items.filter(item => (item + ' ' + bossHay).toLowerCase().includes(q));
-    const bossMatch = q && bossHay.includes(q);
-
-    if(items.length || bossMatch || (!q && lootFilter === 'all') || (!q && items.length)){
-      if(q) items.forEach(item => searchMatches.push({item, boss:boss.boss}));
-      cards.push(`
-        <article class="lootBossCard">
-          <div class="lootBossHead"><h2>${escapeHtml(boss.boss)}</h2><span>${items.length} items</span></div>
-          <p><b>Materials:</b> ${escapeHtml(boss.materials)}</p>
-          <p><b>Location:</b> ${escapeHtml(boss.location)}</p>
-          ${items.length ? `<div class="lootItemGrid">${items.map(item =>
-            `<button class="lootItem ${mythicLootNames.has(item)?'mythic':(sorcererUniversalLootNames.has(item)?'universal':(sorcererOnlyLootNames.has(item)?'sorc':''))}" onclick="searchLootItem(${jsString(item)})">${escapeHtml(item)}</button>`
-          ).join('')}</div>` : `<p class="muted">No listed drops in the current reference.</p>`}
-        </article>`);
-    }
-  });
-
-  let summary = '';
-  if(q && searchMatches.length){
-    const byItem = {};
-    searchMatches.forEach(x => { (byItem[x.item] ||= []).push(x.boss); });
-    summary = `<section class="lootSummary panel"><h2>Search results</h2>${
-      Object.entries(byItem).map(([item,bosses]) =>
-        `<div class="lootResult ${mythicLootNames.has(item)?'mythic':(sorcererUniversalLootNames.has(item)?'universal':(sorcererOnlyLootNames.has(item)?'sorc':''))}"><b>${escapeHtml(item)}</b><span>${[...new Set(bosses)].map(escapeHtml).join(' • ')}</span></div>`
-      ).join('')
-    }</section>`;
+  const index = buildLootIndex();
+  let entries = index.filter(itemAllowedByLootFilter);
+  if(q){
+    entries = entries.filter(entry => {
+      const sourceText = entry.bosses.map(b => `${b.boss} ${b.materials} ${b.location}`).join(' ');
+      return `${entry.name} ${sourceText}`.toLowerCase().includes(q);
+    });
   }
-  root.innerHTML = summary + (cards.join('') || `<section class="panel"><p>No loot table matches found.</p></section>`);
+
+  const cards = entries.map(entry => `
+    <article class="lootItemCard ${entry.mythic ? 'mythic' : ''}">
+      <div class="lootItemHead">
+        <h2>${escapeHtml(entry.name)}</h2>
+        <span>${entry.mythic ? 'Mythic' : 'Unique'}</span>
+      </div>
+      <div class="lootSources">
+        ${entry.bosses.map(src => `
+          <div class="lootSource">
+            <b>${escapeHtml(src.boss)}</b>
+            <small>${escapeHtml(src.location)}</small>
+            <em>${escapeHtml(src.materials)}</em>
+          </div>
+        `).join('')}
+      </div>
+    </article>
+  `);
+
+  const resultCount = entries.length;
+  root.innerHTML = `
+    <section class="lootSummary panel">
+      <h2>${q ? `Search results for “${escapeHtml(input.value)}”` : 'Sorcerer unique lookup'}</h2>
+      <p>${resultCount} item${resultCount===1?'':'s'} shown. Search a unique to see every boss source that can drop it.</p>
+    </section>
+    ${cards.join('') || `<section class="panel"><p>No matching unique found.</p></section>`}
+  `;
 }
 function searchLootItem(item){
   const input = document.querySelector('#lootSearch'); if(input) input.value = item;
-  lootFilter = 'all';
-  document.querySelectorAll('.lootFilter').forEach(b=>b.classList.toggle('active', b.dataset.filter==='all'));
   renderLoot();
   document.querySelector('#lootTab')?.scrollIntoView({behavior:'smooth', block:'start'});
 }

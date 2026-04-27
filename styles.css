@@ -162,3 +162,20 @@
 .lootResult.universal b{color:#ffe6a3 !important}
 .lootResult.mythic{border-color:#b58cff !important;background:rgba(181,140,255,.1) !important}
 .lootResult.mythic b{color:#f0e8ff !important}
+
+
+/* Item-first loot lookup */
+.lootItemCard{background:#12182f;border:1px solid #2d3761;border-radius:24px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.lootItemCard.mythic{border-color:#b58cff;background:linear-gradient(180deg,rgba(74,44,124,.35),#12182f)}
+.lootItemHead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid #2d3761;margin-bottom:12px;padding-bottom:10px}
+.lootItemHead h2{margin:0;font-size:22px;line-height:1.1}
+.lootItemHead span{background:#24305a;border-radius:999px;padding:7px 10px;color:#cbd4ff;font-weight:900;white-space:nowrap}
+.lootItemCard.mythic .lootItemHead span{background:#4b2c7c;color:#f2e8ff}
+.lootSources{display:grid;gap:10px}
+.lootSource{background:#0f1529;border:1px solid #2d3761;border-radius:16px;padding:12px;display:grid;gap:4px}
+.lootSource b{color:#fff}
+.lootSource small{color:#cbd4ff}
+.lootSource em{color:#9facdb;font-style:normal;font-size:13px}
+.lootItem.universal,.lootResult.universal{border-color:#303a68!important;background:#0f1529!important;color:#e8ecff!important;box-shadow:none!important}
+.lootItem.universal b,.lootResult.universal b{color:inherit!important}
+@media (min-width:800px){#lootResults{grid-template-columns:repeat(2,minmax(0,1fr))}.lootSummary{grid-column:1/-1}}
